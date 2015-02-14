@@ -1,0 +1,7 @@
+.DS_Store
+.vagrant/
+doc/
+node_modules/
+dist/
+test/**/*.js
+npm-debug.log
