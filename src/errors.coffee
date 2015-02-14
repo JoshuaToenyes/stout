@@ -19,11 +19,11 @@ Throwable = require './Throwable'
 # @function defineErr
 # @private
 
-defineErr = (name, parent = Throwable) ->
-  module.exports[name] = class name extends parent
+defineErr = (Name, parent = Throwable) ->
+  module.exports[Name] = class Name extends parent
     constructor: (m, p) ->
       super(m, p)
-      @name = name
+      @name = Name
 
 
 ##
@@ -32,7 +32,7 @@ defineErr = (name, parent = Throwable) ->
 #
 # @class IllegalArgumentErr
 
-defineError 'IllegalArgumentErr'
+defineErr 'IllegalArgumentErr'
 
 
 ##
@@ -41,7 +41,7 @@ defineError 'IllegalArgumentErr'
 #
 # @class IllegalArgumentErr
 
-defineError 'MissingArgumentErr'
+defineErr 'MissingArgumentErr'
 
 
 ##
@@ -51,7 +51,7 @@ defineError 'MissingArgumentErr'
 #
 # @class ConstErr
 
-defineError 'ConstErr'
+defineErr 'ConstErr'
 
 
 ##
@@ -60,7 +60,7 @@ defineError 'ConstErr'
 #
 # @class TypeErr
 
-defineError 'TypeErr'
+defineErr 'TypeErr'
 
 
 ##
@@ -68,7 +68,7 @@ defineError 'TypeErr'
 #
 # @class IllegalReadErr
 
-defineError 'IllegalReadErr'
+defineErr 'IllegalReadErr'
 
 
 ##
@@ -77,7 +77,7 @@ defineError 'IllegalReadErr'
 #
 # @class DBErr
 
-defineError 'DBErr'
+defineErr 'DBErr'
 
 
 ##
@@ -86,7 +86,7 @@ defineError 'DBErr'
 #
 # @class DBConnectionErr
 
-defineError 'DBConnectionErr'
+defineErr 'DBConnectionErr'
 
 
 ##
@@ -94,4 +94,4 @@ defineError 'DBConnectionErr'
 #
 # @class UnregisteredEventErr
 
-defineError 'UnregisteredEventErr'
+defineErr 'UnregisteredEventErr'

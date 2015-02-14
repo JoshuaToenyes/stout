@@ -19,11 +19,11 @@ Throwable = require './Throwable'
 # @function defineException
 # @private
 
-defineException = (name, parent = Throwable) ->
-  module.exports[name] = class name extends parent
+defineException = (Name, parent = Throwable) ->
+  module.exports[Name] = class Name extends parent
     constructor: (m, p) ->
       super(m, p)
-      @name = name
+      @name = Name
 
 
 ##

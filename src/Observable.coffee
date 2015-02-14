@@ -211,12 +211,12 @@ class Observable
   # @method deregister
   # @public
   deregister: _.wrap (e) ->
-      if not @_events[e]?
-        throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-      @dumpListeners e
-      @_events[e] = null
-      return
-    , @::validateEvents
+    if not @_events[e]?
+      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
+    @dumpListeners e
+    @_events[e] = null
+    return
+  , @::validateEvents
 
 
   ##
