@@ -15,6 +15,13 @@ describe 'Throwable', ->
     expect(throwThrowable).to.throw Throwable
 
 
+  it 'should be an instance of Error', ->
+    try
+      throwThrowable()
+    catch e
+      expect(e).to.be.an.instanceof Error
+
+
   it 'has a name property', ->
     try
       throwThrowable()

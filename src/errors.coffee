@@ -7,6 +7,17 @@
 
 Throwable = require './Throwable'
 
+##
+# Standard error object which is primarily used to differentiate between
+# throwable exceptions and throwable errors.
+#
+# @class Err
+# @see Throwable
+
+module.exports.Err = class Err extends Throwable
+  constructor: ->
+    super(arguments...)
+
 
 ##
 # Dynamically creates a named Error class and adds it to the module
@@ -14,16 +25,17 @@ Throwable = require './Throwable'
 #
 # @param {string} name      - The name of the exception class to create.
 #
-# @param {Throwable} parent - The parent class the exception should extend.
+# @param {Err} parent - The parent class the exception should extend.
 #
 # @function defineErr
 # @private
 
-defineErr = (Name, parent = Throwable) ->
-  module.exports[Name] = class Name extends parent
+defineErr = (Name, parent = Err) ->
+  name = Name
+  module.exports[Name] = class extends parent
     constructor: (m, p) ->
       super(m, p)
-      @name = Name
+      @name = name
 
 
 ##
