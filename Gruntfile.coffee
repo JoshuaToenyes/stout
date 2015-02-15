@@ -10,6 +10,8 @@ module.exports = (grunt) ->
       app: ['src/**/*.coffee']
 
     coffee:
+      options:
+        sourceMap: true
       app:
         expand: true,
         flatten: false,
@@ -34,7 +36,12 @@ module.exports = (grunt) ->
           reload: true
 
     clean:
-      all: ['dist/*', 'test/**/*.js']
+      all: [
+        'dist',
+        'src/**/*.js',
+        'src/**/*.map',
+        'test/**/*.js',
+        'test/**/*.map']
 
     mocha_phantomjs:
       all: ['test/**/*.html']
