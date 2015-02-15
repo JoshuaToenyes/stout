@@ -34,6 +34,22 @@ validateEventName = (e) ->
 
 
 ##
+# Converts the passed argument to an array of string event names.
+#
+# @todo Finish documentation.
+
+toEventsArray = (es) ->
+  debugger
+  if _.isPlainObject(es)
+    ob = es
+    es = []
+    for k, v of ob
+      es.push v
+  if !_.isArray(es) then es = [es]
+  return es
+
+
+##
 # `Observable` classes maintain a list of observers (listeners) for specific
 # events. When an event occurs (or is "fired"), the relevant listeners are
 # notified. In this implementation, the listeners are functions which are called
@@ -46,7 +62,7 @@ validateEventName = (e) ->
 # @class Observable
 # @abstract
 
-class Observable
+module.exports = class Observable
 
   # Optionally, the `Observable` constructor may be passed an array of event
   # names to be immediately registered.
@@ -70,6 +86,39 @@ class Observable
     @_eventCount = 0
 
     if es? then @register(es)
+
+
+  ##
+  # Ensures that the passed event name(s) are valid and have been registered.
+  #
+  # @method ensureEventsRegistered
+  # @private
+
+  ensureEventsRegistered: (f, es, args...) ->
+    es = toEventsArray es
+    for e in es
+      if not validateEventName e
+        throw new errors.IllegalArgumentErr "Invalid event name `#{e}`."
+      if not @_events[e]?
+        throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
+    f.call @, es, args...
+
+
+  ##
+  # Ensures that the passed event name(s) are valid and have NOT been
+  # already been registered.
+  #
+  # @method ensureEventsUnregistered
+  # @private
+
+  ensureEventsUnregistered: (f, es, args...) ->
+    es = toEventsArray es
+    for e in es
+      if not validateEventName e
+        throw new errors.IllegalArgumentErr "Invalid event name `#{e}`."
+      if @_events[e]?
+        throw new errors.IllegalArgumentErr "Event `#{e}` already registered."
+    f.call @, es, args...
 
 
   ##
@@ -183,23 +232,13 @@ class Observable
   # @method register
   # @public
 
-  register: (e) ->
-    if _.isPlainObject e
-      for k of e
-        @register e[k]
-    else if _.isArray(e)
-      for i in e
-        @register i
-    else
-      if !validateEventName(e)
-        throw new errors.InvalidArgumentError "Invalid event name `#{e}`."
-      if @_events[e]?
-        throw new errors.InvalidArgumentError "Event `#{e}` already registered."
+  register: _.wrap (es) ->
+    for e in es
       @_events[e] =
-        listeners: []
-        eventCount:     0
-        maxListeners:       DEFAULT_MAX_COUNT
-    return
+        listeners:    []
+        eventCount:   0
+        maxListeners: DEFAULT_MAX_COUNT
+  , @::ensureEventsUnregistered 
 
 
   ##
@@ -210,13 +249,11 @@ class Observable
   #
   # @method deregister
   # @public
-  deregister: _.wrap (e) ->
-    if not @_events[e]?
-      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-    @dumpListeners e
-    @_events[e] = null
-    return
-  , @::validateEvents
+  deregister: _.wrap (es) ->
+    for e in es
+      @dumpListeners e
+      @_events[e] = null
+  , @::ensureEventsRegistered
 
 
   ##
@@ -282,17 +319,3 @@ class Observable
         while i--
           @off(e, @_events[e].listeners[0])
     return
-
-
-  ##
-  # Ensures that the passed event name exists.
-  #
-  # @method validateEvents
-  # @private
-
-  validateEvents: (f, e, args...) ->
-    if not @_events[e]?
-      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-    f.apply @, e, args
-
-module.exports = Observable
