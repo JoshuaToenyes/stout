@@ -25,7 +25,7 @@ module.exports.Exception = class Exception extends Throwable
 # Dynamically creates a named Exception class and adds it to the module
 # exports.
 #
-# @param {string} name      - The name of the exception class to create.
+# @param {string} name - The name of the exception class to create.
 #
 # @param {Exception} parent - The parent class the exception should extend.
 #
