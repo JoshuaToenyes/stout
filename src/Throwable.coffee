@@ -9,34 +9,32 @@ _ = require 'lodash'
 
 
 ##
-# Throwable is an extended Error object which adds the ability to extend
-# the native Error object.
+# Throwable is an extended Error object which adds flexibility and
+# extensibility to the native Error object.
 #
 # @class Throwable
 
 module.exports = class Throwable extends Error
 
   ##
-  # Constructor method.
+  # Throwable constructor. As a first parameter the message or props
+  # object may be passed. If a properties object is passed as the first
+  # and only param, then a `message` member should be set. Each item of the
+  # passed `props` object is added to the constructed `Throwable`.
   #
-  # @param {string} msg   - Error message.
+  # @param {string|object} msg - Error message or props object.
   #
   # @param {object} props - Additional properties for the error object.
+  #
+  # @constructor
 
-  constructor: (msg, props) ->
+  constructor: (@message, props) ->
     @name = 'Throwable'
-
-    if (msg && typeof msg == "object")
-      props = msg
-      msg = undefined
-    else @message = msg
-
-    if (props)
-      for key in props
-        @[key] = props[key]
-
-    if not _.has(this, 'name')
-      @name = if _.has(@prototype, 'name') then @name else @constructor.name
-
+    if @message and _.isPlainObject(@message)
+      props = @message
+      @message = undefined
+    if props?
+      for key, val of props
+        @[key] = val
     if Error.captureStackTrace? && !('stack' in @)
       Error.captureStackTrace @, @constructor

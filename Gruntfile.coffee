@@ -28,12 +28,20 @@ module.exports = (grunt) ->
         ext: '.js'
 
     watch:
-      files: ['src/**/*.coffee', 'test/**/*.coffee'],
-      tasks: ['compile']
-      configFiles:
-        files: ['Gruntfile.coffee']
-        options:
-          reload: true
+      compile:
+        files: ['src/**/*.coffee', 'test/**/*.coffee'],
+        tasks: ['compile']
+        configFiles:
+          files: ['Gruntfile.coffee']
+          options:
+            reload: true
+      test:
+        files: ['src/**/*.coffee', 'test/**/*.coffee'],
+        tasks: ['test']
+        configFiles:
+          files: ['Gruntfile.coffee']
+          options:
+            reload: true
 
     clean:
       all: [
