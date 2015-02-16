@@ -89,18 +89,38 @@ module.exports = class Observable
 
 
   ##
+  # Verifies that the passed events are either registered, or unregistered.
+  #
+  # @param {string|Array<string>|Object<string, string>} es - Event names.
+  #
+  # @param {boolean} registered - True to check if the passed event are
+  # registered, false to check if they are unregistered.
+  #
+  # @returns {Array<string>} Returns an array of event names.
+  #
+  # @method ensureEventsRegistration
+  # @private
+
+  ensureEventsRegistration: (es, registered) ->
+    es = toEventsArray es
+    for e in es
+      if not validateEventName e
+        throw new errors.IllegalArgumentErr "Invalid event name `#{e}`."
+      if registered and not @_events[e]?
+        throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
+      else if !registered and @_events[e]?
+        throw new errors.IllegalArgumentErr "Event `#{e}` already registered."
+    return es
+
+
+  ##
   # Ensures that the passed event name(s) are valid and have been registered.
   #
   # @method ensureEventsRegistered
   # @private
 
   ensureEventsRegistered: (f, es, args...) ->
-    es = toEventsArray es
-    for e in es
-      if not validateEventName e
-        throw new errors.IllegalArgumentErr "Invalid event name `#{e}`."
-      if not @_events[e]?
-        throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
+    es = @ensureEventsRegistration es, true
     f.call @, es, args...
 
 
@@ -112,12 +132,7 @@ module.exports = class Observable
   # @private
 
   ensureEventsUnregistered: (f, es, args...) ->
-    es = toEventsArray es
-    for e in es
-      if not validateEventName e
-        throw new errors.IllegalArgumentErr "Invalid event name `#{e}`."
-      if @_events[e]?
-        throw new errors.IllegalArgumentErr "Event `#{e}` already registered."
+    es = @ensureEventsRegistration es, false
     f.call @, es, args...
 
 
@@ -238,7 +253,7 @@ module.exports = class Observable
         listeners:    []
         eventCount:   0
         maxListeners: DEFAULT_MAX_COUNT
-  , @::ensureEventsUnregistered 
+  , @::ensureEventsUnregistered
 
 
   ##
