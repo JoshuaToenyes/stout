@@ -34,12 +34,17 @@ validateEventName = (e) ->
 
 
 ##
-# Converts the passed argument to an array of string event names.
+# Converts the passed argument to an array of string event names. Takes either
+# a string, array of strings, or an object with string-value event names.
 #
-# @todo Finish documentation.
+# @param {string|Array<string>|Object<string,string>} es - Event names.
+#
+# @return {Array<string>} List of event names.
+#
+# @function toEventsArray
+# @private
 
 toEventsArray = (es) ->
-  debugger
   if _.isPlainObject(es)
     ob = es
     es = []
@@ -264,6 +269,7 @@ module.exports = class Observable
   #
   # @method deregister
   # @public
+
   deregister: _.wrap (es) ->
     for e in es
       @dumpListeners e
@@ -273,11 +279,26 @@ module.exports = class Observable
 
   ##
   # Returns `true` if the specified event is registered.
+  #
+  # @param {string} e - Event name.
+  #
+  # @return {boolean} True if the passed event name is registered.
+  #
+  # @method registered
+  # @public
+
   registered: (e) ->
     @_events[e]?
 
 
+  ##
   # Returns a list of all registered events.
+  #
+  # @return {Array<string>} Array of registered event names.
+  #
+  # @method events
+  # @public
+
   events: ->
     r = []
     for e of @_events
@@ -285,8 +306,18 @@ module.exports = class Observable
     return r
 
 
+  ##
   # Returns the number of listeners for a particular event if `e` is specified,
   # or the total number of listeners registered to this `Observable` if not.
+  #
+  # @param {string} [e] - Event name.
+  #
+  # @return {number} Number of event listeners for passed event (if specified)
+  # or total number of listeners for this Observable.
+  #
+  # @method eventCount
+  # @public
+
   eventCount: (e) ->
     if e?
       if not @_events[e]?
@@ -296,31 +327,72 @@ module.exports = class Observable
       @_eventCount
 
 
+  ##
   # Sets or gets the max listener count for a particular event. If `m` is not
   # specified, then the max listener count for `e` is returned. If `m` is
   # specified, then the max listener count for `e` is set to `m`.
+  #
+  # @param {string} e - Event name.
+  #
+  # @param {number} [m] - Max listener count.
+  #
+  # @return {number} Max listener count for specified event.
+  #
+  # @todo Define behavior if listener count is reduced below current listener
+  # count.
+  #
+  # @method maxListeners
+  # @public
+
   maxListeners: (e, m) ->
     if not @_events[e]?
       throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
     if not m? then @_events[e].maxListeners else @_events[e].maxListeners = m
 
 
+  ##
   # Returns array of listeners for the specified event.
+  #
+  # @param {string} e - Event name.
+  #
+  # @return {Array<function>} Array of listener functions.
+  #
+  # @method listeners
+  # @public
+
   listeners: (e) ->
     if not @_events[e]?
       throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
     l for l in @_events[e].listeners
 
 
+  ##
   # Returns `true` if the listener `l` is attached to event `e`.
+  #
+  # @param {string} e - Event name.
+  #
+  # @param {function} l - Event listener.
+  #
+  # @return {boolean} True if the listener is attached.
+  #
+  # @method listenerAttached
+  # @public
+
   listenerAttached: (e, l) ->
     if not @_events[e]?
       throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
     (@_events[e].listeners.indexOf l) != -1
 
 
+  ##
   # Removes all listeners from event `e` if `e` is specified. If not, then all
   # listeners from all events are removed.
+  #
+  # @param {string} [e] - Event name.
+  #
+  # @method dumpListeners
+  # @public
+
   dumpListeners: (e) ->
     if e?
       if not @_events[e]?
