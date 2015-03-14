@@ -6,6 +6,30 @@ errors     = require './../dist/errors'
 Observable = require './../dist/Observable'
 
 
+testCommonEventErrs = (fn) ->
+
+  o = new Observable()
+
+  it 'throws an TypeErr for invalid event specifiers', ->
+    expect(-> o[fn](1)).to
+    .throw errors.TypeErr, /Invalid event name specifier/
+    expect(-> o[fn](false)).to
+    .throw errors.TypeErr, /Invalid event name specifier/
+    expect(-> o[fn](null)).to
+    .throw errors.TypeErr, /Invalid event name specifier/
+    expect(-> o[fn](undefined)).to
+    .throw errors.TypeErr, /Invalid event name specifier/
+
+  it 'throws an IllegalArgumentErr for invalid event names', ->
+    expect(-> o[fn]('')).to
+    .throw errors.IllegalArgumentErr, /Invalid event name/
+    expect(-> o[fn]('*')).to
+    .throw errors.IllegalArgumentErr, /Invalid event name/
+    expect(-> o[fn]('(')).to
+    .throw errors.IllegalArgumentErr, /Invalid event name/
+
+
+
 describe 'Observable', ->
 
 
@@ -140,6 +164,8 @@ describe 'Observable', ->
     beforeEach ->
       o = new Observable('a b c')
 
+    testCommonEventErrs('off')
+
     it 'increments the listener count for the specified event(s)', ->
       expect(o.count 'a').to.eql 0
       o.on 'a', ->
@@ -159,26 +185,71 @@ describe 'Observable', ->
       expect(o.attached 'b', g).to.be.true
       expect(o.attached 'c', g).to.be.false
 
-    it 'throws an TypeErr for invalid event specifiers', ->
-      expect(-> o.on(1)).to
-      .throw errors.TypeErr, /Invalid event name specifier/
-      expect(-> o.on(false)).to
-      .throw errors.TypeErr, /Invalid event name specifier/
-      expect(-> o.on(null)).to
-      .throw errors.TypeErr, /Invalid event name specifier/
-      expect(-> o.on(undefined)).to
-      .throw errors.TypeErr, /Invalid event name specifier/
-
-    it 'throws an IllegalArgumentErr for invalid event names', ->
-      expect(-> o.on('')).to
-      .throw errors.IllegalArgumentErr, /Invalid event name/
-      expect(-> o.on('*')).to
-      .throw errors.IllegalArgumentErr, /Invalid event name/
-      expect(-> o.on('(')).to
-      .throw errors.IllegalArgumentErr, /Invalid event name/
-
-    it 'throws a LimitException if over max listener count', ->
+    it 'throws a LimitException if reached max listener count', ->
       fn = -> o.on 'a', ->
       o.max 'a', 1
       fn()
       expect(fn).to.throw errors.LimitException, /reached max listeners/
+
+
+  describe '#off', ->
+
+    o = null
+    f = ->
+    g = ->
+
+    beforeEach ->
+      o = new Observable('a b c')
+
+    testCommonEventErrs('off')
+
+    it 'removes listeners from the specified event(s)', ->
+      o.on 'a', f
+      expect(o.attached 'a', f).to.be.true
+      o.off 'a', f
+      expect(o.attached 'a', f).to.be.false
+
+    it 'decrements the attached listener count', ->
+      expect(o.count 'a').to.eql 0
+      o.on 'a', f
+      expect(o.count 'a').to.eql 1
+      o.on 'a', g
+      expect(o.count 'a').to.eql 2
+      o.off 'a', f
+      expect(o.count 'a').to.eql 1
+      o.off 'a', g
+      expect(o.count 'a').to.eql 0
+
+
+  describe '#fire', ->
+
+    o = null
+    aspy = null
+    bspy = null
+
+    beforeEach ->
+      o = new Observable('a b c')
+      aspy = sinon.spy()
+      bspy = sinon.spy()
+      o.on 'a', aspy
+      o.on 'b', bspy
+
+    testCommonEventErrs('fire')
+
+    it 'calls attached event listeners', ->
+      expect(aspy.called).to.be.false
+      expect(bspy.called).to.be.false
+      o.fire 'a'
+      expect(aspy.called).to.be.true
+      expect(bspy.called).to.be.false
+      o.fire 'b'
+      expect(aspy.calledOnce).to.be.true
+      expect(bspy.calledOnce).to.be.true
+
+    it 'calls each listener if firing multiple events', ->
+      qspy = sinon.spy()
+      o.on 'a b c', qspy
+      o.fire 'a b c'
+      expect(aspy.calledOnce).to.be.true
+      expect(bspy.calledOnce).to.be.true
+      expect(qspy.calledThrice).to.be.true

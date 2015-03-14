@@ -183,6 +183,28 @@ module.exports = class Observable
 
 
   ##
+  # Attaches event listener `l` to event `e`.
+  #
+  # @param {string} e - Event name.
+  #
+  # @param {function} l - Event listener function.
+  #
+  # @returns {boolean} `true` if the listener was added, or `false` if it
+  # was already attached.
+  #
+  # @throws {exceptions.LimitException} Thrown if the max number of event
+  # listeners has been reached.
+  #
+  # @method _on
+  # @private
+
+  _on: (e, l) ->
+    if @attached(e, l) then return false
+    @_events[e].listeners.push(l)
+    return true
+
+
+  ##
   # Add event listener `l` to event `e`. The parameter `i` is for internal use
   # and indicates whether or not to increment the listener counts.
   #
@@ -190,22 +212,43 @@ module.exports = class Observable
   #
   # @param {function} l - Event listener function.
   #
+  # @throws {exceptions.LimitException} Thrown if the max number of event
+  # listeners has been reached.
+  #
   # @method on
   # @public
 
-  on: _.wrap (es, l, i = true) ->
+  on: _.wrap (es, l) ->
     _.each es, (e) =>
-      if @attached(e, l) then return
       _e = @_events[e]
-      if i && _e.count + 1 > _e.max
+      if _e.count + 1 > _e.max
         throw new exceptions.LimitException("Cannot add event listener. " +
         "Already reached max listeners of #{_e.max}.")
-      _e.listeners.push(l)
-      if i
+      if @_on e, l
         _e.count++
         @_count++
     return
   , @::ensureEventsRegistered
+
+
+  ##
+  # Removes event listener `l` from event `e`.
+  #
+  # @param {string} e - Event name.
+  #
+  # @param {function} l - Event listener function.
+  #
+  # @returns {boolean} `true` if the event listener was removed, or `false` if
+  # it wasn't attached.
+  #
+  # @method _off
+  # @private
+
+  _off: (e, l) ->
+    if !@attached(e, l) then return false
+    _e = @_events[e]
+    _e.listeners.splice _e.listeners.indexOf(l), 1
+    return true
 
 
   ##
@@ -214,72 +257,87 @@ module.exports = class Observable
   # The parameter `i` is for internal use and indicates whether or not to
   # decrement the listener counts.
   #
-  # @param {string} e - Event name.
+  # @param {EventNamesSpecifier} es - Event names.
   #
   # @param {function} l - Event listener function.
+  #
+  # @throws {errors.IllegalArgumentErr} If the event specifier is invalid.
+  #
+  # @throws {errors.UnregisteredEventErr} Thrown if the specified event is not
+  # registered.
   #
   # @method off
   # @public
 
-  off: (e, l, i = true) ->
-    if not @_events[e]?
-      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-    if !@attached(e, l) then return false
-    _e = @_events[e]
-    _e.listeners.splice _e.listeners.indexOf(l), 1
-    if i
-      _e.count--
-      @_count--
-    true
+  off: _.wrap (es, l, i = true) ->
+    _.each es, (e) =>
+      if @_off e, l
+        @_events[e].count--
+        @_count--
+    return
+  , @::ensureEventsRegistered
 
 
   ##
-  # Adds event listener `l` to event `e` for a single firing of the event. After
-  # the next firing of event `e`, `l` is removed.
+  # Adds event listener `l` to event(s) `e` for a single firing of the event.
+  # After the next firing of each event, `l` is removed. For example, if
+  # some listener `l` is attached to events `a`, `b`, and `c`, then `l` will
+  # be called for the next firing of `a` (and no other `a` events), the next
+  # firing of `b` (and no others), and the next firing of `c`. Effectively,
+  # the listener is called once for each event to-which it is attached. If the
+  # listener is already attached, this method has no effect.
   #
-  # @param {string} e   - Event name.
+  # @param {EventNamesSpecifier} es - Event names.
   #
   # @param {function} l - Event listener function.
+  #
+  # @throws {errors.IllegalArgumentErr} If the event specifier is invalid.
+  #
+  # @throws {errors.UnregisteredEventErr} Thrown if the specified event is not
+  # registered.
+  #
+  # @throws {exceptions.LimitException} Thrown if the max number of event
+  # listeners has been reached.
   #
   # @method once
   # @public
 
-  once: (e, l) ->
-    _t = @
-    if not @_events[e]?
-      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-    @on e, l
-    @on e, (->
-      _t.off e, l
-      _t.off e, this, false
-      return), false
+  once: _.wrap (es, l, i = true) ->
+    _.each es, (e) =>
+      _t = @
+      @on e, l
+      @_on e, ->
+        _t.off e, l
+        _t._off e, this
     return
+  , @::ensureEventsRegistered
 
 
   ##
-  # Fires event `e`, which calls all of `e`'s listeners. Optionally, the data
-  # parameter `d` may be specified and passed as the `data` attribute of the
-  # `Event` object passed to the listeners.
+  # Fires each of the passed events, call each listener attached to that
+  # event. Optionally, data may be specified and passed as the `data`
+  # attribute of the `Event` object.
   #
-  # @param {string} e - Name of event to fire.
+  # @param {EventNamesSpecifier} e - Event(s) to fire.
   #
-  # @param {*} d      - Event data.
+  # @param {*} d - Event data.
+  #
+  # @throws {errors.IllegalArgumentErr} If the event specifier is invalid.
+  #
+  # @throws {errors.UnregisteredEventErr} Thrown if a specified event is not
+  # registered.
   #
   # @method fire
   # @public
 
-  fire: (e, d = null) ->
-    if not @_events[e]?
-      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-
-    # Don't bother creating an event object if there are no listeners.
-    if @_events[e].listeners.length == 0 then return
-
-    evt = new Event e, @, d
-
-    for l in @_events[e].listeners
-      l.call(@, evt)
+  fire: _.wrap (es, d = null) ->
+    _.each es, (e) =>
+      if @count(e) is 0 then return
+      evt = new Event e, @, d
+      for l in @_events[e].listeners
+        l.call(@, evt)
     return
+  , @::ensureEventsRegistered
 
 
   ##
