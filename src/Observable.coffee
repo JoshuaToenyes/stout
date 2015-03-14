@@ -12,7 +12,8 @@ Event      = require './Event'
 ##
 # Event name, or list of event names. If an array is specified, then each
 # element of the array should be a string event name. If an object is specified,
-# then each value of the object should be an event name.
+# then each value of the object should be an event name. Also takes a
+# space-delimited string of event names.
 #
 # @typedef {string|Array<string>|Object<string,string>} EventNamesSpecifier
 
@@ -56,7 +57,11 @@ toEventsArray = (es) ->
     es = []
     for k, v of ob
       es.push v
-  if !_.isArray(es) then es = [es]
+  if !_.isArray(es)
+    if _.isString(es)
+      es = es.split /\s+/
+    else
+      throw new errors.TypeErr "Invalid event name specifier."
   return es
 
 
@@ -179,8 +184,7 @@ module.exports = class Observable
 
   ##
   # Add event listener `l` to event `e`. The parameter `i` is for internal use
-  # and indicates whether or not to increment the listener counts. Returns
-  # `true` if the listeners was attached, or `false` if it was already attached.
+  # and indicates whether or not to increment the listener counts.
   #
   # @param {string} e - Event name.
   #
@@ -189,20 +193,19 @@ module.exports = class Observable
   # @method on
   # @public
 
-  on: (e, l, i = true) ->
-    if not @_events[e]?
-      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-    if @attached(e, l) then return false
-    _e = @_events[e]
-    if i && _e.count + 1 > _e.max
-      throw new exceptions.LimitException("Cannot add event listener. " +
-      "Already reached max listeners of #{_e.max}")
-
-    _e.listeners.push(l)
-    if i
-      _e.count++
-      @_count++
-    true
+  on: _.wrap (es, l, i = true) ->
+    _.each es, (e) =>
+      if @attached(e, l) then return
+      _e = @_events[e]
+      if i && _e.count + 1 > _e.max
+        throw new exceptions.LimitException("Cannot add event listener. " +
+        "Already reached max listeners of #{_e.max}.")
+      _e.listeners.push(l)
+      if i
+        _e.count++
+        @_count++
+    return
+  , @::ensureEventsRegistered
 
 
   ##

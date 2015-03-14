@@ -45,7 +45,7 @@ describe 'Observable', ->
       fna = -> o.register ['', 'abc']
       expect(fna).to.throw errors.InvalidArgumentErr, /Invalid event name/
 
-    it 'throws an IllegalArgumentErr if the event was already registered', ->
+    it 'throws an RegisteredEventErr if the event was already registered', ->
       fn = -> o.register 'evta'
       expect(fn).not.to.throw errors.IllegalArgumentErr
       expect(fn).to.throw errors.RegisteredEventErr, /already registered/
@@ -95,7 +95,7 @@ describe 'Observable', ->
   describe '#registered', ->
 
     o = null
-    es = ['eventa', 'eventb']
+    es = 'eventa eventb'
 
     beforeEach ->
       o = new Observable()
@@ -118,7 +118,7 @@ describe 'Observable', ->
   describe '#events', ->
 
     o = null
-    es = ['eventa', 'eventb']
+    es = 'eventa eventb'
 
     beforeEach ->
       o = new Observable()
@@ -128,6 +128,57 @@ describe 'Observable', ->
 
     it 'returns an array of registered event names', ->
       o.register es
-      expect(o.events()).to.eql es
+      expect(o.events()).to.eql es.split ' '
       o.register 'eventc'
-      expect(o.events()).to.eql _.union es, ['eventc']
+      expect(o.events()).to.eql _.union es.split(' '), ['eventc']
+
+
+  describe '#on', ->
+
+    o = null
+
+    beforeEach ->
+      o = new Observable('a b c')
+
+    it 'increments the listener count for the specified event(s)', ->
+      expect(o.count 'a').to.eql 0
+      o.on 'a', ->
+      expect(o.count 'a').to.eql 1
+      o.on 'a b', ->
+      expect(o.count 'a').to.eql 2
+      expect(o.count 'b').to.eql 1
+
+    it 'attaches the listener to the specified event(s)', ->
+      f = ->
+      g = ->
+      expect(o.attached 'c', f).to.be.false
+      o.on 'c', f
+      expect(o.attached 'c', f).to.be.true
+      o.on 'a b', g
+      expect(o.attached 'a', g).to.be.true
+      expect(o.attached 'b', g).to.be.true
+      expect(o.attached 'c', g).to.be.false
+
+    it 'throws an TypeErr for invalid event specifiers', ->
+      expect(-> o.on(1)).to
+      .throw errors.TypeErr, /Invalid event name specifier/
+      expect(-> o.on(false)).to
+      .throw errors.TypeErr, /Invalid event name specifier/
+      expect(-> o.on(null)).to
+      .throw errors.TypeErr, /Invalid event name specifier/
+      expect(-> o.on(undefined)).to
+      .throw errors.TypeErr, /Invalid event name specifier/
+
+    it 'throws an IllegalArgumentErr for invalid event names', ->
+      expect(-> o.on('')).to
+      .throw errors.IllegalArgumentErr, /Invalid event name/
+      expect(-> o.on('*')).to
+      .throw errors.IllegalArgumentErr, /Invalid event name/
+      expect(-> o.on('(')).to
+      .throw errors.IllegalArgumentErr, /Invalid event name/
+
+    it 'throws a LimitException if over max listener count', ->
+      fn = -> o.on 'a', ->
+      o.max 'a', 1
+      fn()
+      expect(fn).to.throw errors.LimitException, /reached max listeners/
