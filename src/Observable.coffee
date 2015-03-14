@@ -344,7 +344,7 @@ module.exports = class Observable
   # Registers an event with this Observable. If the passed parameter is an
   # array of event names each is registered.
   #
-  # @param {string} e - Event name to register.
+  # @param {EventNamesSpecifier} es - Event name to register.
   #
   # @method register
   # @public
@@ -362,7 +362,7 @@ module.exports = class Observable
   # Deregisters an event with this Observable, and subsequently dumps all
   # listeners for that event.
   #
-  # @public {string} e - Event name to deregister.
+  # @public {EventNamesSpecifier} es - Event name to deregister.
   #
   # @method deregister
   # @public
@@ -422,13 +422,18 @@ module.exports = class Observable
   # @returns {number} Number of registered listeners for the specified event,
   # or if no event is specified then the total number of listeners.
   #
+  # @throws {errors.IllegalArgumentErr} If the event specifier passed but is
+  # invalid.
+  #
+  # @throws {errors.UnregisteredEventErr} Thrown if a specified event is not
+  # registered.
+  #
   # @method count
   # @public
 
   count: (e) ->
     if e?
-      if not @_events[e]?
-        throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
+      @ensureEventsRegistration e, true
       @_events[e].count
     else
       @_count
@@ -452,8 +457,7 @@ module.exports = class Observable
   # @public
 
   max: (e, m) ->
-    if not @_events[e]?
-      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
+    @ensureEventsRegistration e, true
     if not m? then @_events[e].max else @_events[e].max = m
 
 

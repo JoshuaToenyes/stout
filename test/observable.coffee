@@ -253,3 +253,63 @@ describe 'Observable', ->
       expect(aspy.calledOnce).to.be.true
       expect(bspy.calledOnce).to.be.true
       expect(qspy.calledThrice).to.be.true
+
+
+  describe '#events', ->
+
+    it 'returns a list of registered events', ->
+      o = new Observable('a b c d')
+      expect(o.events()).to.eql ['a', 'b', 'c', 'd']
+
+    it 'should return an empty array if no events are registered', ->
+      o = new Observable()
+      expect(o.events()).to.eql []
+
+
+  describe '#ecount', ->
+
+    it 'returns the number of registered events', ->
+      o = new Observable()
+      expect(o.ecount()).to.eql 0
+      o.register 'a b c d'
+      expect(o.ecount()).to.eql 4
+
+
+  describe '#count', ->
+
+    o = null
+
+    beforeEach ->
+      o = new Observable('a b c')
+
+    it 'returns the total number of listeners when called without args', ->
+      expect(o.count()).to.equal 0
+      o.on 'a', ->
+      o.on 'b', ->
+      expect(o.count()).to.equal 2
+
+    it 'returns the number of listeners for a single event if specified', ->
+      o.on 'a', ->
+      o.on 'b', ->
+      o.on 'b c', ->
+      expect(o.count('a')).to.equal 1
+      expect(o.count('b')).to.equal 2
+      expect(o.count('c')).to.equal 1
+
+
+  describe '#max', ->
+
+    o = null
+
+    beforeEach ->
+      o = new Observable('a b c')
+
+    it 'sets the max listener count for an event', ->
+      o.max('a', 5)
+      expect(o.max 'a').to.eql 5
+
+    it 'gets the max listener count for an event', ->
+      o.max('a', 5)
+      o.max('b', 7)
+      expect(o.max 'a').to.eql 5
+      expect(o.max 'b').to.eql 7
