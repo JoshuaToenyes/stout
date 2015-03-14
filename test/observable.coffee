@@ -90,3 +90,46 @@ describe 'Observable', ->
       expect(fn).to.throw errors.UnregisteredEventErr, /is not registered/
       fna = -> o.deregister ['xyz', 'abc']
       expect(fna).to.throw errors.UnregisteredEventErr, /is not registered/
+
+
+  describe '#registered', ->
+
+    o = null
+    es = ['eventa', 'eventb']
+
+    beforeEach ->
+      o = new Observable()
+
+    it 'returns false for event names that are not registered', ->
+      expect(o.registered 'fake').to.be.false
+      expect(o.registered 'notreal').to.be.false
+
+    it 'returns false for non-string event names', ->
+      expect(o.registered()).to.be.false
+      expect(o.registered null).to.be.false
+      expect(o.registered undefined).to.be.false
+
+    it 'returns true for registered event names', ->
+      o.register es
+      expect(o.registered 'eventa').to.be.true
+      expect(o.registered 'eventb').to.be.true
+
+
+  describe '#events', ->
+
+    o = null
+    es = ['eventa', 'eventb']
+
+    beforeEach ->
+      o = new Observable()
+
+    it 'returns an empty array of there are no registered events', ->
+      expect(o.events()).to.eql []
+
+    it 'returns an array of registered event names', ->
+      o.register es
+      expect(o.events()).to.eql es
+      o.register 'eventc'
+      nes = _.clone(es)
+      nes.push 'eventc'
+      expect(o.events()).to.eql nes
