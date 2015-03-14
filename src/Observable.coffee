@@ -32,9 +32,15 @@ validateEventName = (e) ->
 
 
 ##
-# Converts the passed argument to an array of string event names.
+# Converts the passed argument to an array of string event names. Takes either
+# a string, array of strings, or an object with string-value event names.
 #
-# @todo Finish documentation.
+# @param {string|Array<string>|Object<string,string>} es - Event names.
+#
+# @return {Array<string>} List of event names.
+#
+# @function toEventsArray
+# @private
 
 toEventsArray = (es) ->
   if _.isPlainObject(es)
