@@ -108,3 +108,11 @@ defineErr 'DBConnectionErr'
 # @class UnregisteredEventErr
 
 defineErr 'UnregisteredEventErr'
+
+
+##
+# Thrown if an event is already registered, but expected to be unregistered.
+#
+# @class RegisteredEventErr
+
+defineErr 'RegisteredEventErr'

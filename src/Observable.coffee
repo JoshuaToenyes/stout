@@ -10,6 +10,14 @@ Event      = require './Event'
 
 
 ##
+# Event name, or list of event names. If an array is specified, then each
+# element of the array should be a string event name. If an object is specified,
+# then each value of the object should be an event name.
+#
+# @typedef {string|Array<string>|Object<string,string>} EventNamesSpecifier
+
+
+##
 # Default maximum number of listeners that may be attached to a particular
 # event. An error is thrown if the number of listeners attached to an event
 # exceeds the max count.
@@ -35,7 +43,7 @@ validateEventName = (e) ->
 # Converts the passed argument to an array of string event names. Takes either
 # a string, array of strings, or an object with string-value event names.
 #
-# @param {string|Array<string>|Object<string,string>} es - Event names.
+# @param {EventNamesSpecifier} es - Event names.
 #
 # @return {Array<string>} List of event names.
 #
@@ -71,7 +79,7 @@ module.exports = class Observable
   # Optionally, the `Observable` constructor may be passed an array of event
   # names to be immediately registered.
   #
-  # @param {Array<string> | Object<string, string>} es - Event names to
+  # @param {EventNamesSpecifier} es - Event names to
   # register upon instantiation.
   #
   # @constructor
@@ -101,12 +109,21 @@ module.exports = class Observable
   ##
   # Verifies that the passed events are either registered, or unregistered.
   #
-  # @param {string|Array<string>|Object<string, string>} es - Event names.
+  # @param {EventNamesSpecifier} es - Event names.
   #
   # @param {boolean} registered - True to check if the passed event are
   # registered, false to check if they are unregistered.
   #
   # @returns {Array<string>} Returns an array of event names.
+  #
+  # @throws {errors.IllegalArgumentErr} If the specified event name is invalid.
+  #
+  # @throws {errors.UnregisteredEventErr} If the specified event should be
+  # verified as *registered*, then this error will be thrown if the specified
+  # event is not registered.
+  #
+  # @throws {errors.RegisteredEventErr} Thrown if the specified event should
+  # be verified as unregistered, but is actually registered.
   #
   # @method ensureEventsRegistration
   # @private
@@ -119,12 +136,19 @@ module.exports = class Observable
       if registered and not @_events[e]?
         throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
       else if !registered and @_events[e]?
-        throw new errors.IllegalArgumentErr "Event `#{e}` already registered."
+        throw new errors.RegisteredEventErr "Event `#{e}` already registered."
     return es
 
 
   ##
   # Ensures that the passed event name(s) are valid and have been registered.
+  #
+  # @param {function(EventNamesSpecifier, ...)} f - The function to call after
+  # ensuring the passed events are registered.
+  #
+  # @param {EventNamesSpecifier} es - Event names to ensure are registered.
+  #
+  # @param {*} args... - Additional arguments to pass to `f`.
   #
   # @method ensureEventsRegistered
   # @private
@@ -137,6 +161,13 @@ module.exports = class Observable
   ##
   # Ensures that the passed event name(s) are valid and have NOT been
   # already been registered.
+  #
+  # @param {function(EventNamesSpecifier, ...)} f - The function to call after
+  # ensuring the passed events are not registered.
+  #
+  # @param {EventNamesSpecifier} es - Event names to ensure are not registered.
+  #
+  # @param {*} args... - Additional arguments to pass to `f`.
   #
   # @method ensureEventsUnregistered
   # @private
@@ -312,6 +343,16 @@ module.exports = class Observable
 
 
   ##
+  # Returns the number of registered events.
+  #
+  # @method ecount
+  # @public
+
+  ecount: ->
+    @events().length
+
+
+  ##
   # Returns the number of listeners for a particular event if `e` is specified,
   # or the total number of listeners registered to this `Observable` if not.
   #
@@ -330,6 +371,7 @@ module.exports = class Observable
       @_events[e].count
     else
       @_count
+
 
   ##
   # Sets or gets the max listener count for a particular event. If `m` is not

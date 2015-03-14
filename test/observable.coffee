@@ -48,7 +48,7 @@ describe 'Observable', ->
     it 'throws an IllegalArgumentErr if the event was already registered', ->
       fn = -> o.register 'evta'
       expect(fn).not.to.throw errors.IllegalArgumentErr
-      expect(fn).to.throw errors.IllegalArgumentErr, /already registered/
+      expect(fn).to.throw errors.RegisteredEventErr, /already registered/
 
 
   describe '#deregister', ->
@@ -130,6 +130,4 @@ describe 'Observable', ->
       o.register es
       expect(o.events()).to.eql es
       o.register 'eventc'
-      nes = _.clone(es)
-      nes.push 'eventc'
-      expect(o.events()).to.eql nes
+      expect(o.events()).to.eql _.union es, ['eventc']
