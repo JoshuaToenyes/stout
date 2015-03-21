@@ -2,8 +2,8 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-errors     = require './../dist/errors'
-Observable = require './../dist/Observable'
+errors     = require './../../../dist/common/err'
+Observable = require './../../../dist/common/event/Observable'
 
 
 testCommonEventErrs = (fn) ->

@@ -2,8 +2,8 @@ _      = require 'lodash'
 chai   = require 'chai'
 sinon  = require 'sinon'
 expect = chai.expect
-Throwable  = require './../dist/Throwable'
-errors = require './../dist/errors'
+Throwable  = require './../../../dist/common/Throwable'
+errors = require './../../../dist/common/err'
 
 
 errs = [
