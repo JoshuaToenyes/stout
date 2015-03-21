@@ -4,8 +4,8 @@
 # @author Joshua Toenyes <joshua.toenyes@me.com>
 
 _          = require 'lodash'
-errors     = require './errors'
-exceptions = require './exceptions'
+errors     = require './../err'
+exceptions = require './../exc'
 Event      = require './Event'
 
 

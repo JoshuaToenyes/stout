@@ -5,7 +5,7 @@
 #
 # @requires lodash
 
-Throwable = require './Throwable'
+Throwable = require './../Throwable'
 
 
 ##
