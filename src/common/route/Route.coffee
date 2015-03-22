@@ -12,6 +12,19 @@
 module.exports = class Route
 
   ##
+  # Matching function used to determine if a routed object matches this route.
+  #
+  # @member {function} matcher
+  # @private
+
+  ##
+  # Reference to handler function called if the routed object matches this
+  # route.
+  #
+  # @member {function} handler
+  # @private
+
+  ##
   # Route constructor.
   #
   # @param {function} matcher - Function which takes the routable object as
@@ -33,6 +46,9 @@ module.exports = class Route
   # @param {*} routable - The object to route.
   #
   # @returns {boolean} `true` if this route matches.
+  #
+  # @method test
+  # @public
 
   test: (routable) ->
     @matcher routable
@@ -46,6 +62,9 @@ module.exports = class Route
   #
   # @returns {boolean} `true` if this route matched and the request was
   # dispatched.
+  #
+  # @method exec
+  # @public
 
   exec: (routable) ->
     matches = @test routable
