@@ -66,7 +66,7 @@ module.exports = class Foundation extends Observable
   # @param {Object<string, *>} props Initial assignments of instance properties.
 
   constructor: (props = {}) ->
-    super()
+    super 'change'
 
     # Create the `_fields` member.
     @_fields = {}
@@ -353,9 +353,12 @@ module.exports = class Foundation extends Observable
         if opts.const and @_constCheck
           throw constErr
         if opts.static
+          old = @constructor._staticFields[name]
           @constructor._staticFields[name] = v
         else
+          old = @_fields[name]
           @_fields[name] = v
+        @fire "change:#{name}", value: v, old: old, property: name
 
     # Finally, create the property on the caller prototype.
     Object.defineProperty @prototype, name, opts

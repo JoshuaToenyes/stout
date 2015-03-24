@@ -30,21 +30,37 @@ testCommonEventErrs = (fn) ->
 
 
 
-describe 'Observable', ->
+describe 'common/event/Observable', ->
+
+  o = null
+
+  beforeEach ->
+    o = new Observable()
+
+  it 'has #registerEvent method', ->
+    expect(o).to.respondTo 'registerEvent'
+
+  it 'has #registerEvents method as alias for #registerEvent', ->
+    expect(o).to.respondTo 'registerEvents'
+    expect(o.registerEvents).to.equal o.registerEvent
+
+  it 'has #deregisterEvent method', ->
+    expect(o).to.respondTo 'deregisterEvent'
+
+  it 'has #deregisterEvents method as alias for #deregisterEvent', ->
+    expect(o).to.respondTo 'deregisterEvents'
+    expect(o.deregisterEvents).to.equal o.deregisterEvent
 
 
-  describe '#register', ->
 
-    o = null
+  describe '#registerEvent', ->
+
     es = ['eventA', 'testEvent', 'eventB']
     eo = EVTA: 'eventa', EVTB: 'eventb', EVTC: 'eventc'
 
-    beforeEach ->
-      o = new Observable()
-
     it 'registers a new event', ->
       _.each es, (e) ->
-        o.register e
+        o.registerEvent e
       _.each es, (e) ->
         expect(o.registered e).to.be.true
       expect(o.registered 'fake').to.be.false
@@ -52,25 +68,25 @@ describe 'Observable', ->
     it 'registers arrays of events', ->
       _.each es, (e) ->
         expect(o.registered e).to.be.false
-      o.register es
+      o.registerEvent es
       _.each es, (e) ->
         expect(o.registered e).to.be.true
 
     it 'registers the values of plain objects as events', ->
       _.each eo, (e) ->
         expect(o.registered e).to.be.false
-      o.register eo
+      o.registerEvent eo
       _.each eo, (e) ->
         expect(o.registered e).to.be.true
 
     it 'throws an IllegalArgumentErr for invalid event names', ->
-      fn = -> o.register ''
+      fn = -> o.registerEvent ''
       expect(fn).to.throw errors.InvalidArgumentErr, /Invalid event name/
-      fna = -> o.register ['', 'abc']
+      fna = -> o.registerEvent ['', 'abc']
       expect(fna).to.throw errors.InvalidArgumentErr, /Invalid event name/
 
     it 'throws an RegisteredEventErr if the event was already registered', ->
-      fn = -> o.register 'evta'
+      fn = -> o.registerEvent 'evta'
       expect(fn).not.to.throw errors.IllegalArgumentErr
       expect(fn).to.throw errors.RegisteredEventErr, /already registered/
 
@@ -85,13 +101,13 @@ describe 'Observable', ->
 
     it 'deregisters the passed event', ->
       expect(o.registered 'eventa').to.be.true
-      o.deregister('eventa')
+      o.deregisterEvent 'eventa'
       expect(o.registered 'eventa').to.be.false
 
     it 'deregisters arrays of passed events', ->
       _.each es, (e) ->
         expect(o.registered e).to.be.true
-      o.deregister es
+      o.deregisterEvent es
       _.each es, (e) ->
         expect(o.registered e).to.be.false
 
@@ -99,20 +115,20 @@ describe 'Observable', ->
       q = EVTA: 'eventa', EVTB: 'eventb'
       _.each q, (e) ->
         expect(o.registered e).to.be.true
-      o.deregister q
+      o.deregisterEvent q
       _.each es, (e) ->
         expect(o.registered e).to.be.false
 
     it 'throws an IllegalArgumentErr for invalid event names', ->
-      fn = -> o.deregister ''
+      fn = -> o.deregisterEvent ''
       expect(fn).to.throw errors.InvalidArgumentErr, /Invalid event name/
-      fna = -> o.deregister ['', 'abc']
+      fna = -> o.deregisterEvent ['', 'abc']
       expect(fna).to.throw errors.InvalidArgumentErr, /Invalid event name/
 
     it 'throws an UnregisteredEventErr if event not registered', ->
-      fn = -> o.deregister 'fake'
+      fn = -> o.deregisterEvent 'fake'
       expect(fn).to.throw errors.UnregisteredEventErr, /is not registered/
-      fna = -> o.deregister ['xyz', 'abc']
+      fna = -> o.deregisterEvent ['xyz', 'abc']
       expect(fna).to.throw errors.UnregisteredEventErr, /is not registered/
 
 
@@ -134,7 +150,7 @@ describe 'Observable', ->
       expect(o.registered undefined).to.be.false
 
     it 'returns true for registered event names', ->
-      o.register es
+      o.registerEvent es
       expect(o.registered 'eventa').to.be.true
       expect(o.registered 'eventb').to.be.true
 
@@ -151,9 +167,9 @@ describe 'Observable', ->
       expect(o.events()).to.eql []
 
     it 'returns an array of registered event names', ->
-      o.register es
+      o.registerEvent es
       expect(o.events()).to.eql es.split ' '
-      o.register 'eventc'
+      o.registerEvent 'eventc'
       expect(o.events()).to.eql _.union es.split(' '), ['eventc']
 
 
@@ -278,7 +294,7 @@ describe 'Observable', ->
     it 'returns the number of registered events', ->
       o = new Observable()
       expect(o.ecount()).to.eql 0
-      o.register 'a b c d'
+      o.registerEvent 'a b c d'
       expect(o.ecount()).to.eql 4
 
 

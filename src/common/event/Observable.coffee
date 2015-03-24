@@ -125,7 +125,7 @@ module.exports = class Observable
     # The number of listeners registered to this `Observable`.
     @_count = 0
 
-    if es? then @register(es)
+    if es? then @registerEvent(es)
 
 
   ##
@@ -369,7 +369,7 @@ module.exports = class Observable
   # @method register
   # @public
 
-  register: _.wrap (es) ->
+  registerEvent: _.wrap (es) ->
     for e in es
       [root] = splitEvent e
       @_events[root] =
@@ -377,6 +377,17 @@ module.exports = class Observable
         count:   0
         max: DEFAULT_MAX_COUNT
   , @::ensureEventsUnregistered
+
+
+  ##
+  # Symantic convenience alias for `#registerEvent`.
+  #
+  # @see #registerEvent
+  #
+  # @method registerEvents
+  # @public
+
+  registerEvents: @.prototype.registerEvent
 
 
   ##
@@ -388,11 +399,22 @@ module.exports = class Observable
   # @method deregister
   # @public
 
-  deregister: _.wrap (es) ->
+  deregisterEvent: _.wrap (es) ->
     for e in es
       @dump e
       @_events[e] = null
   , @::ensureEventsRegistered
+
+
+  ##
+  # Symantic convenience alias for `#deregisterEvent`.
+  #
+  # @see #deregisterEvent
+  #
+  # @method deregisterEvents
+  # @public
+
+  deregisterEvents: @.prototype.deregisterEvent
 
 
   ##
