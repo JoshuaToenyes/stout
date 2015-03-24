@@ -6,9 +6,10 @@
 #
 # @requires lodash
 
-_         = require 'lodash'
-errors    = require './errors'
-utilities = require './utilities'
+_          = require 'lodash'
+errors     = require './../err'
+utilities  = require './../utilities'
+Observable = require './../event/Observable'
 
 
 ##
@@ -53,7 +54,7 @@ VALID_PROPERTY_OPTS = [
 # @abstract
 # @public
 
-module.exports = class Foundation
+module.exports = class Foundation extends Observable
 
   ##
   # Constructor for the Foundation class. Initial assignments for instance
@@ -65,6 +66,7 @@ module.exports = class Foundation
   # @param {Object<string, *>} props Initial assignments of instance properties.
 
   constructor: (props = {}) ->
+    super()
 
     # Create the `_fields` member.
     @_fields = {}
@@ -337,10 +339,14 @@ module.exports = class Foundation
         validateValue.call @, v
         if opts.const and @_constCheck
           throw constErr
+        value = q.call @, v
         if opts.static
-          @constructor._staticFields[name] = q.call @, v
+          old = @constructor._staticFields[name]
+          @constructor._staticFields[name] = value
         else
-          @_fields[name] = q.call @, v
+          old = @_fields[name]
+          @_fields[name] = value
+        @fire "change:#{name}", value: value, old: old, property: name
     else
       opts.set ?= (v) ->
         validateValue.call @, v

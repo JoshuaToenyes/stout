@@ -7,6 +7,7 @@ _          = require 'lodash'
 errors     = require './../err'
 exceptions = require './../exc'
 Event      = require './Event'
+Listener   = require './Listener'
 
 
 ##
@@ -64,6 +65,22 @@ toEventsArray = (es) ->
       throw new errors.TypeErr "Invalid event name specifier."
   return es
 
+##
+# Returns the root event name, or the part preceding the first colon. For
+# example, for the event `change:name`, the root event is `change`.
+#
+# @todo: Fix this documentation...
+#
+# @param {string} e - Event name.
+#
+# @returns {string} Root event name.
+#
+# @function splitEvent
+# @private
+
+splitEvent = (e) ->
+  sp = e.split(/\:(.+)?/)
+  return [sp[0], sp[1]]
 
 ##
 # `Observable` classes maintain a list of observers (listeners) for specific
@@ -136,12 +153,13 @@ module.exports = class Observable
   ensureEventsRegistration: (es, registered) ->
     es = toEventsArray es
     for e in es
+      [root] = splitEvent(e)
       if not validateEventName e
         throw new errors.IllegalArgumentErr "Invalid event name `#{e}`."
-      if registered and not @_events[e]?
-        throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-      else if !registered and @_events[e]?
-        throw new errors.RegisteredEventErr "Event `#{e}` already registered."
+      if registered and not @_events[root]?
+        throw new errors.UnregisteredEventErr "Event `#{root}` is not registered."
+      else if !registered and @_events[root]?
+        throw new errors.RegisteredEventErr "Event `#{root}` already registered."
     return es
 
 
@@ -198,10 +216,9 @@ module.exports = class Observable
   # @method _on
   # @private
 
-  _on: (e, l) ->
-    if @attached(e, l) then return false
-    @_events[e].listeners.push(l)
-    return true
+  _on: (root, spec, l) ->
+    l = new Listener l, spec
+    @_events[root].listeners.push(l)
 
 
   ##
@@ -220,11 +237,13 @@ module.exports = class Observable
 
   on: _.wrap (es, l) ->
     _.each es, (e) =>
-      _e = @_events[e]
+      [root, spec] = splitEvent e
+      _e = @_events[root]
       if _e.count + 1 > _e.max
         throw new exceptions.LimitException("Cannot add event listener. " +
         "Already reached max listeners of #{_e.max}.")
-      if @_on e, l
+      if not @attached e, l
+        @_on root, spec, l
         _e.count++
         @_count++
     return
@@ -244,11 +263,9 @@ module.exports = class Observable
   # @method _off
   # @private
 
-  _off: (e, l) ->
-    if !@attached(e, l) then return false
-    _e = @_events[e]
-    _e.listeners.splice _e.listeners.indexOf(l), 1
-    return true
+  _off: (root, spec, l) ->
+    _e = @_events[root]
+    _e.listeners.splice @indexOf(root, spec, l), 1
 
 
   ##
@@ -271,8 +288,10 @@ module.exports = class Observable
 
   off: _.wrap (es, l, i = true) ->
     _.each es, (e) =>
-      if @_off e, l
-        @_events[e].count--
+      [root, spec] = splitEvent e
+      if @attached e, l
+        @_off root, spec, l
+        @_events[root].count--
         @_count--
     return
   , @::ensureEventsRegistered
@@ -333,9 +352,10 @@ module.exports = class Observable
   fire: _.wrap (es, d = null) ->
     _.each es, (e) =>
       if @count(e) is 0 then return
-      evt = new Event e, @, d
-      for l in @_events[e].listeners
-        l.call(@, evt)
+      [root, spec] = splitEvent e
+      evt = new Event root, @, d
+      for l in @_events[root].listeners
+        l.exec evt, spec, @
     return
   , @::ensureEventsRegistered
 
@@ -351,7 +371,8 @@ module.exports = class Observable
 
   register: _.wrap (es) ->
     for e in es
-      @_events[e] =
+      [root] = splitEvent e
+      @_events[root] =
         listeners:    []
         count:   0
         max: DEFAULT_MAX_COUNT
@@ -433,8 +454,9 @@ module.exports = class Observable
 
   count: (e) ->
     if e?
+      [root, spec] = splitEvent e
       @ensureEventsRegistration e, true
-      @_events[e].count
+      @_events[root].count
     else
       @_count
 
@@ -477,6 +499,19 @@ module.exports = class Observable
     l for l in @_events[e].listeners
 
 
+
+  ##
+  # Returns the index of a matching Listener object.
+  #
+  # @method _indexOf
+  # @private
+
+  indexOf: (root, spec, listner) ->
+    for l, i in @_events[root].listeners
+      if l.matches(spec) and l.fn is listner then return i
+    return -1
+
+
   ##
   # Returns `true` if the listener `l` is attached to event `e`.
   #
@@ -491,9 +526,10 @@ module.exports = class Observable
   # @public
 
   attached: (e, l) ->
-    if not @_events[e]?
-      throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
-    (@_events[e].listeners.indexOf l) != -1
+    [root, spec] = splitEvent e
+    if not @_events[root]?
+      throw new errors.UnregisteredEventErr "Event `#{root}` is not registered."
+    @indexOf(root, spec, l) != -1
 
 
   ##

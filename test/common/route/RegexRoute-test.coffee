@@ -7,7 +7,7 @@ RegexRoute = require './../../../dist/common/route/RegexRoute'
 
 
 
-describe.only 'common/route/RegexRoute', ->
+describe 'common/route/RegexRoute', ->
 
   router = null
   spy = null

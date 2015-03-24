@@ -191,6 +191,13 @@ describe 'Observable', ->
       fn()
       expect(fn).to.throw errors.LimitException, /reached max listeners/
 
+    it 'filters events based on specifiers', ->
+      spy = sinon.spy()
+      o.on 'a:test', spy
+      o.fire 'a'
+      expect(spy.called).to.be.false
+      o.fire 'a:test'
+      expect(spy.called).to.be.true
 
   describe '#off', ->
 
@@ -295,6 +302,30 @@ describe 'Observable', ->
       expect(o.count('a')).to.equal 1
       expect(o.count('b')).to.equal 2
       expect(o.count('c')).to.equal 1
+
+
+  describe '#attached', ->
+
+    o = null
+    fn = null
+
+    beforeEach ->
+      o = new Observable('a b c')
+      fn = ->
+
+    it 'should return `true` if the listener is attached', ->
+      o.on 'a', fn
+      expect(o.attached 'a', fn).to.be.true
+
+    it 'should filter based on event namespace', ->
+      o.on 'a:test', fn
+      expect(o.attached 'a', fn).to.be.false
+      expect(o.attached 'a:test', fn).to.be.true
+
+    it 'should filter on partial namespaces', ->
+      o.on 'a:test', fn
+      expect(o.attached 'a', fn).to.be.false
+      expect(o.attached 'a:test:more:deep', fn).to.be.true
 
 
   describe '#max', ->
