@@ -277,7 +277,7 @@ module.exports = class Foundation extends Observable
         if opts.static
           q @constructor._staticFields[name]
         else
-          q @_fields[name]
+          q.call @, @_fields[name]
     else
       opts.get = ->
         if opts.static

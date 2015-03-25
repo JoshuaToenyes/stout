@@ -277,6 +277,12 @@ describe 'common/event/Observable', ->
       expect(bspy.calledOnce).to.be.true
       expect(qspy.calledThrice).to.be.true
 
+    it 'fires an `event` event whenever an event is fired', ->
+      qspy = sinon.spy()
+      o.on 'event', qspy
+      o.fire 'a'
+      expect(qspy.calledOnce).to.be.true
+
 
   describe '#events', ->
 

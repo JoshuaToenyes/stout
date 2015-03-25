@@ -31,6 +31,16 @@ DEFAULT_MAX_COUNT = 10
 
 
 ##
+# These are internal events that every Observable has. User events cannot
+# duplicate these names, and these events cannot be deregistered.
+#
+# @const INTERNAL_EVENTS
+# @private
+
+INTERNAL_EVENTS = ['event']
+
+
+##
 # Validates an event name. Event names must be composed of letters, numbers,
 # or underscores, and must be at least one character long.
 #
@@ -126,6 +136,10 @@ module.exports = class Observable
     @_count = 0
 
     if es? then @registerEvent(es)
+
+    # Register the default event `event`, which is fired whenever an event
+    # is fired.
+    @registerEvent INTERNAL_EVENTS
 
 
   ##
@@ -356,6 +370,8 @@ module.exports = class Observable
       evt = new Event root, @, d
       for l in @_events[root].listeners
         l.exec evt, spec, @
+      if e isnt 'event'
+        @fire 'event', evt
     return
   , @::ensureEventsRegistered
 
@@ -442,7 +458,7 @@ module.exports = class Observable
   events: ->
     r = []
     for e of @_events
-      if @_events[e]? then r.push e
+      if @_events[e]? and (e not in INTERNAL_EVENTS) then r.push e
     return r
 
 
