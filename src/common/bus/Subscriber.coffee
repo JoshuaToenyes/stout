@@ -1,8 +1,8 @@
 
 
-BusMember = require './BusMember'
+Participant = require './Participant'
 
-module.exports = class Subscriber extends BusMember
+module.exports = class Subscriber extends Participant
 
   constructor: (bus, @_fn) ->
     super bus

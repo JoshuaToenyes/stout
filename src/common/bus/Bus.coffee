@@ -1,13 +1,38 @@
+##
+# Defines a simple content-based Publish-Subscriber model bus.
+#
+# @author Joshua Toenyes <joshua.toenyes@me.com>
 
 List       = require './../collection/List'
 Publisher  = require './Publisher'
 Subscriber = require './Subscriber'
 
 
+##
+# The `Bus` class defines a simple publisher-subscriber model bus for
+# exchanging messages. Publishers publish messages to the bus and all
+# subscribers have the opportunity to receive them. Subscribers may filter
+# the messages that they subscribe to, so they receive only the ones of
+# interest.
+#
+# @class Bus
+# @public
+
 module.exports = class Bus
 
+
+  ##
+  # Constructor method which takes no arguments.
+  #
+  # @constructor
   constructor: ->
-    @_plugged = new List
+
+    ##
+    # Internal list of subscribers.
+    #
+    # @property _subscribers
+    # @private
+
     @_subscribers = new List
 
 
@@ -19,7 +44,7 @@ module.exports = class Bus
 
 
   ##
-  # Publishes a message to this Bus.
+  # Publishes a message to the bus.
   #
   # @param {*} message - The message to publish.
   #

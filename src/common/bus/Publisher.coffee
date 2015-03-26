@@ -1,12 +1,12 @@
 
 
-BusMember = require './BusMember'
+Participant = require './Participant'
 
 
 ##
 #
 
-module.exports = class Publisher extends BusMember
+module.exports = class Publisher extends Participant
 
   ##
   # @constructor
@@ -16,7 +16,7 @@ module.exports = class Publisher extends BusMember
 
 
   publish: (element) ->
-    
+
 
 
   pub: @.prototype.publish
