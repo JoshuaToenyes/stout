@@ -15,8 +15,9 @@ module.exports = class Publisher extends Participant
     super bus
 
 
-  publish: (element) ->
-
+  publish: (message) ->
+    if @test message
+      @_bus.publish message
 
 
   pub: @.prototype.publish

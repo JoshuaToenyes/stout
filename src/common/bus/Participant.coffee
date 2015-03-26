@@ -8,10 +8,10 @@ List = require './../collection/List'
 ##
 # Describes a bus member class.
 #
-# @class BusMember
+# @class Participant
 # @abstract
 
-module.exports = class BusMember
+module.exports = class Participant
 
   ##
   #
