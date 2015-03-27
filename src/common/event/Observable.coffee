@@ -52,30 +52,6 @@ validateEventName = (e) ->
 
 
 ##
-# Converts the passed argument to an array of string event names. Takes either
-# a string, array of strings, or an object with string-value event names.
-#
-# @param {EventNamesSpecifier} es - Event names.
-#
-# @return {Array<string>} List of event names.
-#
-# @function toEventsArray
-# @private
-
-toEventsArray = (es) ->
-  if _.isPlainObject(es)
-    ob = es
-    es = []
-    for k, v of ob
-      es.push v
-  if !_.isArray(es)
-    if _.isString(es)
-      es = es.split /\s+/
-    else
-      throw new errors.TypeErr "Invalid event name specifier."
-  return es
-
-##
 # Returns the root event name, or the part preceding the first colon. For
 # example, for the event `change:name`, the root event is `change`.
 #
@@ -91,6 +67,7 @@ toEventsArray = (es) ->
 splitEvent = (e) ->
   sp = e.split(/\:(.+)?/)
   return [sp[0], sp[1]]
+
 
 ##
 # `Observable` classes maintain a list of observers (listeners) for specific
@@ -143,6 +120,31 @@ module.exports = class Observable
 
 
   ##
+  # Converts the passed argument to an array of string event names. Takes either
+  # a string, array of strings, or an object with string-value event names.
+  #
+  # @param {EventNamesSpecifier} es - Event names.
+  #
+  # @return {Array<string>} List of event names.
+  #
+  # @method parseEventSpecifier
+  # @public
+
+  parseEventSpecifier: (es) ->
+    if _.isPlainObject(es)
+      ob = es
+      es = []
+      for k, v of ob
+        es.push v
+    if !_.isArray(es)
+      if _.isString(es)
+        es = es.split /\s+/
+      else
+        throw new errors.TypeErr "Invalid event name specifier #{es}."
+    return es
+
+
+  ##
   # Verifies that the passed events are either registered, or unregistered.
   #
   # @param {EventNamesSpecifier} es - Event names.
@@ -165,7 +167,7 @@ module.exports = class Observable
   # @private
 
   ensureEventsRegistration: (es, registered) ->
-    es = toEventsArray es
+    es = @parseEventSpecifier es
     for e in es
       [root] = splitEvent(e)
       if not validateEventName e
@@ -232,8 +234,8 @@ module.exports = class Observable
   # @method _on
   # @private
 
-  _on: (root, spec, l) ->
-    l = new Listener l, spec
+  _on: (root, spec, l, scope = @) ->
+    l = new Listener l, spec, scope
     @_events[root].listeners.push(l)
 
 
@@ -248,10 +250,13 @@ module.exports = class Observable
   # @throws {exceptions.LimitException} Thrown if the max number of event
   # listeners has been reached.
   #
+  # @todo Check the documentation on this one... I'm pretty sure it throws
+  # other errors/exceptions.
+  #
   # @method on
   # @public
 
-  on: _.wrap (es, l) ->
+  on: _.wrap (es, l, scope) ->
     _.each es, (e) =>
       [root, spec] = splitEvent e
       _e = @_events[root]
@@ -259,7 +264,7 @@ module.exports = class Observable
         throw new exceptions.LimitException("Cannot add event listener. " +
         "Already reached max listeners of #{_e.max}.")
       if not @attached e, l
-        @_on root, spec, l
+        @_on root, spec, l, scope
         _e.count++
         @_count++
     return
@@ -367,13 +372,13 @@ module.exports = class Observable
 
   fire: _.wrap (es, d = null) ->
     _.each es, (e) =>
-      if @count(e) is 0 then return
+      if @count() is 0 then return
       [root, spec] = splitEvent e
       evt = new Event root, @, d
       for l in @_events[root].listeners
         l.exec evt, spec, @
-      if e isnt 'event'
-        @fire 'event', evt
+      for l in @_events['event'].listeners
+        l.exec evt, spec, @
     return
   , @::ensureEventsRegistered
 
@@ -561,6 +566,8 @@ module.exports = class Observable
   #
   # @returns {boolean} True if the listener `l` is attached to event `e`,
   # false otherwise.
+  #
+  # @todo This needs to be expanded to take any event specifier as event arg.
   #
   # @method attached
   # @public
