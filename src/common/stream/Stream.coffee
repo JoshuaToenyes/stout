@@ -36,6 +36,7 @@ module.exports = class Stream extends Foundation
     @_listenerMap = new ObjectMap
     if init? then @push init
 
+
   ##
   # Adds and event listener `l` to event specifier `es` just as Observable#on
   # would, with once exception: if attaching to the `value` event, the a
@@ -148,7 +149,6 @@ module.exports = class Stream extends Foundation
       else
         f = l
       super es, f
-
 
 
   ##
