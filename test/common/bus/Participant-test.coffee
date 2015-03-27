@@ -7,7 +7,7 @@ err         = require './../../../dist/common/err'
 
 
 
-describe.only 'common/bus/Participant', ->
+describe 'common/bus/Participant', ->
 
   p = f1 = f2 = f3 = null
 
