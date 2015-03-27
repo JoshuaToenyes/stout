@@ -344,11 +344,12 @@ module.exports = class Observable
 
   once: _.wrap (es, l, i = true) ->
     _.each es, (e) =>
+      [root, spec] = splitEvent e
       _t = @
       @on e, l
-      @_on e, ->
+      @_on e, spec, ->
         _t.off e, l
-        _t._off e, this
+        _t._off e, spec, this
     return
   , @::ensureEventsRegistered
 
@@ -597,10 +598,10 @@ module.exports = class Observable
         throw new errors.UnregisteredEventErr "Event `#{e}` is not registered."
       i = @_events[e].listeners.length
       while i--
-        @off(e, @_events[e].listeners[0])
+        @off(e, @_events[e].listeners[i].fn)
     else
       for e of @_events
         i = @_events[e].listeners.length
         while i--
-          @off(e, @_events[e].listeners[0])
+          @off(e, @_events[e].listeners[i].fn)
     return
