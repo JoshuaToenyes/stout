@@ -2,8 +2,8 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-Throwable  = require './../../../dist/common/base/Throwable'
-exceptions = require './../../../dist/common/exc'
+Throwable  = require './../../../../dist/common/base/Throwable'
+exceptions = require './../../../../dist/common/exc'
 
 
 excpts = [
@@ -13,7 +13,7 @@ excpts = [
   'LimitException']
 
 
-describe 'Exceptions', ->
+describe 'common/exc', ->
 
   it 'should export all exception classes', ->
     _.each excpts, (e) ->

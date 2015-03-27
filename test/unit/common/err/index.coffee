@@ -2,8 +2,8 @@ _      = require 'lodash'
 chai   = require 'chai'
 sinon  = require 'sinon'
 expect = chai.expect
-Throwable  = require './../../../dist/common/base/Throwable'
-errors = require './../../../dist/common/err'
+Throwable  = require './../../../../dist/common/base/Throwable'
+errors = require './../../../../dist/common/err'
 
 
 errs = [
@@ -17,7 +17,7 @@ errs = [
   'UnregisteredEventErr']
 
 
-describe 'Errors', ->
+describe 'common/err', ->
 
   it 'should export all error classes', ->
     _.each errs, (e) ->

@@ -2,8 +2,8 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-Observable = require './../../../dist/common/event/Observable'
-EventBus   = require './../../../dist/common/bus/EventBus'
+Observable = require './../../../../dist/common/event/Observable'
+EventBus   = require './../../../../dist/common/bus/EventBus'
 
 
 

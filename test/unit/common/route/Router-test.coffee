@@ -2,8 +2,8 @@ _        = require 'lodash'
 chai     = require 'chai'
 sinon    = require 'sinon'
 expect   = chai.expect
-Router   = require './../../../dist/common/route/Router'
-Route    = require './../../../dist/common/route/Route'
+Router   = require './../../../../dist/common/route/Router'
+Route    = require './../../../../dist/common/route/Route'
 
 
 

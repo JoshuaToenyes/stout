@@ -2,8 +2,8 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-Bus        = require './../../../dist/common/bus/Bus'
-Subscriber = require './../../../dist/common/bus/Subscriber'
+Bus        = require './../../../../dist/common/bus/Bus'
+Subscriber = require './../../../../dist/common/bus/Subscriber'
 
 
 testCommonSubOrFuncErrs = (fn) ->

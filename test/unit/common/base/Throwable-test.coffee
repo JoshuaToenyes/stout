@@ -2,14 +2,14 @@ _         = require 'lodash'
 chai      = require 'chai'
 sinon     = require 'sinon'
 expect    = chai.expect
-Throwable = require './../../../dist/common/base/Throwable'
+Throwable = require './../../../../dist/common/base/Throwable'
 
 
 throwThrowable = ->
   throw new Throwable 'test message'
 
 
-describe 'Throwable', ->
+describe 'common/base/Throwable', ->
 
   it 'can be thrown', ->
     expect(throwThrowable).to.throw Throwable
