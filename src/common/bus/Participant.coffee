@@ -27,8 +27,8 @@ module.exports = class Participant
   ##
   # Adds one or more filter functions to this Participant.
   #
-  # @param {function|Array<function>} args... - One or more functions to add as a filter,
-  # an array of functions to add as filters.
+  # @param {function|Array<function>} args... - One or more functions to add
+  # as a filter, an array of functions to add as filters.
   #
   # @method filter
   # @public

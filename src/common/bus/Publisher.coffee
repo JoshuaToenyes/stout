@@ -1,6 +1,6 @@
 ##
-# Defines the Publisher class, which is an object which can easily publish messages
-# to a pre-associated bus.
+# Defines the Publisher class, which is an object which can easily publish
+# messages to a pre-associated bus.
 #
 # @author Joshua Toenyes <joshua.toenyes@me.com>
 
@@ -9,8 +9,9 @@ Participant = require './Participant'
 
 ##
 # The Publisher class is an object which is pre-associated with a Bus for used
-# for publishing messages to that Bus. Additionally, it provides publishing filtering
-# functionality so only messages which pass registered filters will be published.
+# for publishing messages to that Bus. Additionally, it provides publishing
+# filtering functionality so only messages which pass registered filters will
+# be published.
 #
 # @class Publisher
 # @extends Participant
@@ -32,8 +33,8 @@ module.exports = class Publisher extends Participant
   #
   # @param {*} message - The message to publish.
   #
-  # @returns {boolean} Returns `true` if the message passed all filters and was published
-  # to the Bus, otherwise `false`.
+  # @returns {boolean} Returns `true` if the message passed all filters and
+  # was published to the Bus, otherwise `false`.
 
   publish: (message) ->
     if @test message
@@ -47,7 +48,7 @@ module.exports = class Publisher extends Participant
   #
   # @see #publish
   #
-  # @param pub
+  # @method pub
   # @public
 
   pub: @.prototype.publish

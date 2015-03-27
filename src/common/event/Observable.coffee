@@ -171,9 +171,11 @@ module.exports = class Observable
       if not validateEventName e
         throw new errors.IllegalArgumentErr "Invalid event name `#{e}`."
       if registered and not @_events[root]?
-        throw new errors.UnregisteredEventErr "Event `#{root}` is not registered."
+        throw new errors.UnregisteredEventErr "Event `#{root}` is not
+        registered."
       else if !registered and @_events[root]?
-        throw new errors.RegisteredEventErr "Event `#{root}` already registered."
+        throw new errors.RegisteredEventErr "Event `#{root}` already
+        registered."
     return es
 
 

@@ -39,17 +39,20 @@ module.exports = class Subscriber extends Participant
   notify: (message) ->
     if @test message
       @_fn.call null, message
+      return true
+    return false
 
 
   ##
-  # Comparison method which checks if the passed parameter is equal to this subscriber's
+  # Comparison method which checks if the passed parameter is equal to this
+  # subscriber's callback function.
+  #
+  # @param {function} fn - Function to check for equality against this
+  # subscriber's
   # callback function.
   #
-  # @param {function} fn - Function to check for equality against this subscriber's
-  # callback function.
-  #
-  # @returns {boolean} `true` if the passed function is the same as this subscriber's
-  # callback function.
+  # @returns {boolean} `true` if the passed function is the same as this
+  # subscriber's callback function.
   #
   # @method compare
   # @public
@@ -66,3 +69,14 @@ module.exports = class Subscriber extends Participant
 
   unsubscribe: ->
     @_bus.unsubscribe @
+
+
+  ##
+  # Convenience alias for `#unsubscribe` method.
+  #
+  # @see #unsubscribe
+  #
+  # @method unsub
+  # @public
+
+  unsub: @.prototype.unsubscribe
