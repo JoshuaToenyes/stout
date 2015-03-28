@@ -8,6 +8,7 @@ _          = require 'lodash'
 Foundation = require './../../common/base/Foundation'
 err        = require './../../common/err'
 type       = require './../../common/utilities/type'
+Stream     = require './../../common/stream/Stream'
 
 
 ##
@@ -42,10 +43,16 @@ module.exports = class Navigator extends Foundation
   constructor: ->
     super()
     @registerEvent 'navigate'
+    @_stream = new Stream
     @_popStateListener = (e) =>
       @fire 'navigate', @location
+      @_stream.push @location
     window.addEventListener 'popstate', @_popStateListener
 
+
+
+  asStream: ->
+    return @_stream
 
 
   ##
@@ -79,6 +86,7 @@ module.exports = class Navigator extends Foundation
       throw new err.TypeErr "Expected string or number,
       but instead got #{type(location).name()}."
     @fire 'navigate', @location
+    @_stream.push @location
 
 
 
@@ -103,6 +111,7 @@ module.exports = class Navigator extends Foundation
 
   back: ->
     @goto -1
+
 
   ##
   # Navigates forward one page.

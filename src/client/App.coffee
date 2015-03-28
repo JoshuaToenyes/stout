@@ -2,6 +2,9 @@
 
 Foundation = require './../common/base/Foundation'
 URLRouter  = require './../common/route/URLRouter'
+Navigator  = require './../client/nav/Navigator'
+
+
 
 module.exports = class App extends Foundation
 
@@ -23,13 +26,30 @@ module.exports = class App extends Foundation
 
   constructor: ->
     super()
+    @router = new URLRouter greedy: true
+    @navigator = new Navigator
+    @_setupEventListeners()
 
-    @on 'change:routes', =>
-      @_updateRoutes()
 
+  ##
+  # Starts the app and routes based on initial location.
+  #
+  # @method start
+  # @public
 
   start: ->
     @router.route window.location.pathname
+
+
+  ##
+  # Sets up internal event listeners.
+  #
+  # @method _setupEventListeners
+  # @private
+
+  _setupEventListeners: ->
+    @navigator.asStream().on 'value', @router.route, @router
+    @on 'change:routes', @_updateRoutes, @
 
 
   ##
@@ -40,6 +60,6 @@ module.exports = class App extends Foundation
   # @private
 
   _updateRoutes: ->
-    @router = new URLRouter greedy: true
+    @router.clear()
     for route, handler of @routes
       @router.add route, handler

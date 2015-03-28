@@ -1,8 +1,9 @@
-_          = require 'lodash'
-chai       = require 'chai'
-sinon      = require 'sinon'
-expect     = chai.expect
-App        = require './../../../dist/client/App'
+_           = require 'lodash'
+chai        = require 'chai'
+sinon       = require 'sinon'
+expect      = chai.expect
+App         = require './../../../dist/client/App'
+MockBrowser = require('mock-browser').mocks.MockBrowser
 
 
 
@@ -12,6 +13,8 @@ describe 'client/App', ->
   spy = null
 
   beforeEach ->
+    mock = new MockBrowser()
+    global.window = mock.getWindow()
     app = new App
     spy = sinon.spy()
 

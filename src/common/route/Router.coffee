@@ -127,6 +127,7 @@ module.exports = class Router
       if @opts.greedy and counter > 0 then return true
     return if @opts.greedy then false else counter
 
+
   ##
   # Removes all routes in this router.
   #
