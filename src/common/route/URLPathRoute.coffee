@@ -61,4 +61,4 @@ module.exports = class URLPathRoute extends RegexRoute
     while (m = pr.exec(route)) isnt null
       route = route.replace /\:\w+/, '(\\w+)'
       route = route.replace /\\\*\w+/, '([\\w/]+)'
-    return route
+    return '^' + route + '$'
