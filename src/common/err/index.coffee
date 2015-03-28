@@ -116,3 +116,19 @@ defineErr 'UnregisteredEventErr'
 # @class RegisteredEventErr
 
 defineErr 'RegisteredEventErr'
+
+
+##
+# Thrown if an attempt is made to use an unregistered topic.
+#
+# @class UnregisteredTopicErr
+
+defineErr 'UnregisteredTopicErr'
+
+
+##
+# Thrown if a topic is already registered, but expected to be unregistered.
+#
+# @class RegisteredTopicErr
+
+defineErr 'RegisteredTopicErr'

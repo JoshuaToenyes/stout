@@ -226,3 +226,14 @@ module.exports = class Bus extends Observable
 
   subscribersCount: ->
     return @_subscribers.length
+
+
+  ##
+  # Alias for #subscribersCount method.
+  #
+  # @see #subscribersCount
+  #
+  # @method subscriberCount
+  # @public
+
+  subscriberCount: @.prototype.subscribersCount
