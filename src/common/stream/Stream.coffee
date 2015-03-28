@@ -62,13 +62,14 @@ module.exports = class Stream extends Foundation
   # @override
   # @public
 
-  on: (es, l) ->
+  on: (es, l, scope) ->
     if es isnt VALUE_EVENT
       super es, l
     else
       thisStream = @
+      scope ?= thisStream
       f = ((l) ->
-        return (evt) -> l.call(thisStream, evt.data)
+        return (evt) -> l.call(scope, evt.data)
       )(l)
       @_listenerMap.put l, f
       super es, f
