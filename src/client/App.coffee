@@ -28,6 +28,10 @@ module.exports = class App extends Foundation
       @_updateRoutes()
 
 
+  start: ->
+    @router.route window.location.pathname
+
+
   ##
   # Updates all the apps routes by creating a new router and re-adding each
   # route.
