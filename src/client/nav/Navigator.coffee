@@ -4,7 +4,10 @@
 #
 # @author Joshua Toenyes <joshua.toenyes@me.com>
 
+_          = require 'lodash'
 Foundation = require './../../common/base/Foundation'
+err        = require './../../common/err'
+type       = require './../../common/utilities/type'
 
 
 ##
@@ -37,22 +40,77 @@ module.exports = class Navigator extends Foundation
   # @constructor
 
   constructor: ->
-    window.onpopstate = prev
-    window.onpopstate = (e) =>
+    super()
+    @registerEvent 'navigate'
+    @_popStateListener = (e) =>
       @fire 'navigate', @location
-      prev?.call null, e
+    window.addEventListener 'popstate', @_popStateListener
+
+
+
+  ##
+  # Destroys this Navigator object, and removes any global listeners.
+  #
+  # @method destroy
+  # @destructor
+
+  destroy: ->
+    window.removeEventListener 'popstate', @_popStateListener
 
 
   ##
   # Triggers a navigation to a new location.
   #
-  # @param {string} location - The location to navigate to.
+  # @param {string|number} location - If a string, it is the location to
+  # navigate to, if a number it is a relative position within the browser
+  # history, e.g. `-1` for back one page, `+2` for forward two pages.
   #
-  # @fires navigate
+  # @fires navigate - New location set as event data.
   #
   # @method goto
   # @public
 
   goto: (location) ->
-    window.history.pushState null, '', location
-    @fire 'navigate', location
+    if _.isString location
+      window.history.pushState null, '', location
+    else if _.isNumber location
+      window.history.go location
+    else
+      throw new err.TypeErr "Expected string or number,
+      but instead got #{type(location).name()}."
+    @fire 'navigate', @location
+
+
+
+  ##
+  # Convenience alias for #goto().
+  #
+  # @see #goto()
+  #
+  # @method go
+  # @public
+
+  go: @.prototype.goto
+
+
+  ##
+  # Navigates back one page.
+  #
+  # @see #goto()
+  #
+  # @method back
+  # @public
+
+  back: ->
+    @goto -1
+
+  ##
+  # Navigates forward one page.
+  #
+  # @see #goto()
+  #
+  # @method forward
+  # @public
+
+  forward: ->
+    @goto 1
