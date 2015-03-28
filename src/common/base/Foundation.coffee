@@ -29,6 +29,7 @@ VALID_PROPERTY_OPTS = [
   'values'
   'static'
   'default'
+  'readonly'
   'required'
   'enumerable'
   'configurable'
@@ -184,6 +185,8 @@ module.exports = class Foundation extends Observable
   #                                             modify this property will throw
   #                                             a ConstErr.
   #
+  # @param {boolean} [opts.readonly=false]      Alias for opts.const.
+  #
   # @param {boolean} [opts.required=false]      Set to `true` if this property
   #                                             is required to be set during
   #                                             instantiation.
@@ -258,6 +261,9 @@ module.exports = class Foundation extends Observable
 
     if @_fieldAliases == @__super__?.constructor?._fieldAliases
       @_fieldAliases = _.cloneDeep(@__super__.constructor._fieldAliases)
+
+    # Read-only is a simple alias for const.
+    if opts.readonly? then opts.const = true
 
     # Assign the default values to opts, if they're not defined.
     opts.const        ?= false
