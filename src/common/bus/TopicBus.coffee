@@ -4,15 +4,17 @@
 #
 # @author Joshua Toenyes <joshua.toenyes@me.com>
 
-_          = require 'lodash'
-Observable = require './../event/Observable'
-List       = require './../collection/List'
-Publisher  = require './Publisher'
-Subscriber = require './Subscriber'
-Stats      = require './../stat/Stats'
-err        = require './../err'
-exc        = require './../exc'
-type       = require './../utilities/type'
+_               = require 'lodash'
+Observable      = require './../event/Observable'
+List            = require './../collection/List'
+Bus             = require './Bus'
+TopicPublisher  = require './TopicPublisher'
+TopicSubscriber = require './TopicSubscriber'
+Stats           = require './../stat/Stats'
+err             = require './../err'
+exc             = require './../exc'
+type            = require './../utilities/type'
+Map             = require './../collection/Map'
 
 
 ##
@@ -28,10 +30,11 @@ type       = require './../utilities/type'
 # channel. Filtering functions the same as a standard Bus, with the added
 # compartmentalization of topics.
 #
-# Note: Subscribers subscribed to multiple topics will only get a message once
-# if it is published to multiple topics. e.g. If subscriber S subscribes to
-# topics A and B, and a message M is published (in a single call to #publish())
-# then S will be called only once.
+# Note: Subscribers subscribed to multiple topics may get a message more than
+# once if it is published to multiple topics. e.g. If subscriber S subscribes to
+# topics A and B, and a message M is published to topics A and B in a single
+# call to #publish(), then S will be called twice, once for topic A and once
+# for topic B.
 #
 # @class TopicBus
 # @extends Observable
@@ -45,6 +48,110 @@ module.exports = class TopicBus extends Observable
   # @param {TopicsSpecifier} topics - List of initial topics to register.
 
   constructor: (topics) ->
+    super 'publish subscribe unsubscribe'
+    @stats = new Stats()
+    @_topics = {}
+    if topics then @addTopics topics
+
+
+  ##
+  # Verifies that the passed topics are either registered, or unregistered.
+  #
+  # @param {TopicsSpecifier} topics - Topic names.
+  #
+  # @param {boolean} registered - True to check if the passed topics are
+  # registered, false to check if they are unregistered.
+  #
+  # @returns {Array<string>} Returns an array of topic strings.
+  #
+  # @throws {errors.IllegalArgumentErr} If the specified topic string is
+  # invalid.
+  #
+  # @throws {errors.UnregisteredTopicErr} If the specified topic should be
+  # verified as *registered*, then this error will be thrown if the specified
+  # event is not registered.
+  #
+  # @throws {errors.RegisteredTopicErr} Thrown if the specified event should
+  # be verified as unregistered, but is actually registered.
+  #
+  # @method _ensureTopicsRegistration
+  # @private
+
+  _ensureTopicsRegistration: (topics, registered) ->
+    ts = @_parseTopicsSpecifier topics
+    for t in ts
+      if registered and not @_topics[t]?
+        throw new err.UnregisteredTopicErr "Topic `#{t}` is not registered."
+      else if !registered and @_topics[t]?
+        throw new err.RegisteredTopicErr "Topic `#{t}` already registered."
+    return ts
+
+
+  ##
+  # Ensures that the passed topics are valid and have been registered.
+  #
+  # @param {function(EventNamesSpecifier, ...)} f - The function to call after
+  # ensuring the passed events are registered.
+  #
+  # @param {TopicsSpecifier} topics - Topics to ensure are registered.
+  #
+  # @param {*} args... - Additional arguments to pass to `f`.
+  #
+  # @method _ensureTopicsRegistered
+  # @private
+
+  _ensureTopicsRegistered: (f, topics, args...) ->
+    topics = @_ensureTopicsRegistration topics, true
+    f.call @, topics, args...
+
+
+  ##
+  # Ensures that the passed topics are valid and have NOT been already been
+  # registered.
+  #
+  # @param {function(EventNamesSpecifier, ...)} f - The function to call after
+  # ensuring the passed events are not registered.
+  #
+  # @param {TopicsSpecifier} topics - Topics to ensure are unregistered.
+  #
+  # @param {*} args... - Additional arguments to pass to `f`.
+  #
+  # @method _ensureTopicsUnregistered
+  # @private
+
+  _ensureTopicsUnregistered: (f, topics, args...) ->
+    topics = @_ensureTopicsRegistration topics, false
+    f.call @, topics, args...
+
+
+  ##
+  # Parses the passed TopicsSpecifier into an array of single-topic strings.
+  #
+  # @param {TopicsSpecifier} topics - Topics to parse.
+  #
+  # @returns {Array<string>} Array of single topic strings.
+  #
+  # @throws {err.TypeErr} If not passed a string or array of strings.
+  #
+  # @throws {exc.IllegalArgumentException} If passed an invalid topic string.
+  #
+  # @method _parseTopicsSpecifier
+  # @private
+
+  _parseTopicsSpecifier: (topics) ->
+    if _.isString topics
+      ts = _.uniq topics.split /\s+/
+      for t in ts
+        if not /\w+/.test t
+          throw new exc.IllegalArgumentException "Invalid topic string #{t}."
+    else if _.isArray(topics)
+      ts = []
+      for t in topics
+        ts.push @_parseTopicsSpecifier t
+    else
+      throw new err.TypeErr "Expected string or Array<string>, but instead
+      got #{type(topics).name()}."
+    return ts
 
 
   ##
@@ -55,7 +162,10 @@ module.exports = class TopicBus extends Observable
   # @method addTopics
   # @public
 
-  addTopics: ->
+  addTopics: _.wrap (topics) ->
+    _.each topics, (topic) =>
+      @_topics[topic] = new Bus()
+  , @::_ensureTopicsUnregistered
 
 
   ##
@@ -77,7 +187,11 @@ module.exports = class TopicBus extends Observable
   # @method removeTopics
   # @public
 
-  removeTopics: ->
+  removeTopics: _.wrap (topics) ->
+    _.each topics, (topic) =>
+      @_topics[topic].destroy()
+      @_topics[topic] = null
+  , @::_ensureTopicsRegistered
 
 
   ##
@@ -104,7 +218,13 @@ module.exports = class TopicBus extends Observable
   # @method topicRegistered
   # @public
 
-  topicsRegistered: (topic) ->
+  topicsRegistered: (topics) ->
+    topics = @_parseTopicsSpecifier topics
+    all = true
+    _.each topics, (topic) =>
+      all = all && @_topics[topic]?
+      if !all then return false
+    return all
 
 
   ##
@@ -130,6 +250,7 @@ module.exports = class TopicBus extends Observable
   # @public
 
   createPublisher: (topics) ->
+    new TopicPublisher topics, @
 
 
   ##
@@ -142,7 +263,12 @@ module.exports = class TopicBus extends Observable
   # @method publish
   # @public
 
-  publish: (topics, message) ->
+  publish: _.wrap (topics, message) ->
+    @fire 'publish', message
+    _.each topics, (topic) =>
+      @_topics[topic].publish message
+      @stats.increment 'publish'
+  , @::_ensureTopicsRegistered
 
 
   ##
@@ -171,7 +297,18 @@ module.exports = class TopicBus extends Observable
   # a single function, or an array of Subscriber objects if passed an array
   # of functions or multiple function arguments.
 
-  subscribe: (topics, fn...) ->
+  subscribe: _.wrap (topics, fn...) ->
+    subs = []
+    tSubs = []
+    _.each topics, (topic) =>
+      subs.push @_topics[topic].subscribe fn...
+    if _.isArray(fn[0]) then fn = fn[0]
+    _.each fn, (f) =>
+      tSubs.push new TopicSubscriber @, subs, f
+    @fire 'subscribe', fn
+    @stats.increment 'subscribe'
+    return if tSubs.length is 1 then tSubs[0] else tSubs
+  , @::_ensureTopicsRegistered
 
 
   ##
@@ -192,14 +329,22 @@ module.exports = class TopicBus extends Observable
   # @param {TopicsSpecifier} topics - The topics to check if the subscrbier is
   # subscribed to.
   #
-  # @param {function} f - The function to check if is subscribed.
+  # @param {function} subscriber - The function to check if is subscribed.
   #
   # @returns {boolean} `true` if the function is subscribed, otherwise `false`.
   #
   # @method subscribed
   # @public
 
-  subscribed: (topics, subscriber) ->
+  subscribed: _.wrap (topics, subscriber) ->
+    all = true
+    _.each topics, (topic) =>
+      if subscriber instanceof TopicSubscriber
+        all = all && subscriber.subscribed topic
+      else
+        all = all && @_topics[topic].subscribed subscriber
+    return all
+  , @::_ensureTopicsRegistered
 
 
   ##
@@ -223,7 +368,13 @@ module.exports = class TopicBus extends Observable
   # @method unsubscribe
   # @public
 
-  unsubscribe: (topics, subscriber) ->
+  unsubscribe: _.wrap (topics, subscriber) ->
+    _.each topics, (topic) =>
+      if subscriber instanceof TopicSubscriber
+        subscriber.unsubscribe topics
+      else
+        @_topics[topic].unsubscribe subscriber
+  , @::_ensureTopicsRegistered
 
 
   ##
@@ -269,6 +420,16 @@ module.exports = class TopicBus extends Observable
   # @public
 
   subscribersCount: (topics) ->
+    acc = 0
+    if topics
+      @_ensureTopicsRegistered (ts) =>
+        _.each ts, (t) =>
+          acc += @_topics[t].subscribersCount()
+      , topics
+    else
+      _.each @_topics, (bus) =>
+        acc += bus.subscribersCount()
+    return acc
 
 
   ##
@@ -293,32 +454,3 @@ module.exports = class TopicBus extends Observable
   # @public
 
   topicStats: (topic) ->
-
-
-  ##
-  # Parses the passed TopicsSpecifier into an array of single-topic strings.
-  #
-  # @param {TopicsSpecifier} topics - Topics to parse.
-  #
-  # @returns {Array<string>} Array of single topic strings.
-  #
-  # @throws {err.TypeErr} If not passed a string or array of strings.
-  #
-  # @throws {exc.IllegalArgumentException} If passed an invalid topic string.
-  #
-  # @method _parseTopics
-  # @private
-
-  _parseTopics: (topics) ->
-    if _.isString topics
-      ts = topics.split /\s+/
-      for t in ts
-        if not /\w+/.test t
-          throw new err.IllegalArgumentException "Invalid topic string #{t}."
-    else if _.isArray(topics)
-      ts = []
-      for t in topics
-        ts.push @_parseTopics t
-    else
-      throw new err.TypeErr "Expected string or Array<string>,
-      but instead got #{type(topics).name()}."

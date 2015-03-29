@@ -3,11 +3,12 @@ chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
 err        = require './../../../../dist/common/err'
+exc        = require './../../../../dist/common/exc'
 TopicBus   = require './../../../../dist/common/bus/TopicBus'
-Subscriber = require './../../../../dist/common/bus/Subscriber'
+TopicSubscriber = require './../../../../dist/common/bus/TopicSubscriber'
 
 
-describe.only 'common/bus/TopicBus', ->
+describe 'common/bus/TopicBus', ->
 
   bus = spy = null
 
@@ -89,12 +90,12 @@ describe.only 'common/bus/TopicBus', ->
       expect(bus.topicRegistered 'c').to.be.true
       expect(bus.topicRegistered 'a b c').to.be.true
 
-    it 'throws a RegisteredTopicErr if a topic is duplicated', ->
-      expect(-> new TopicBus 'a a').to.throw err.RegisteredTopicErr
-
 
 
   describe '#addTopics()', ->
+
+    beforeEach ->
+      bus = new TopicBus
 
     it 'adds a single topic', ->
       bus.addTopic 'a'
@@ -112,6 +113,11 @@ describe.only 'common/bus/TopicBus', ->
     it 'throws a RegisteredTopicErr if the topic is already registered', ->
       bus.addTopic 'a'
       expect(-> bus.addTopics 'a').to.throw err.RegisteredTopicErr
+
+    it 'throws a IllegalArgumentException if a topic string is invalid', ->
+      expect(-> bus.addTopic '').to.throw exc.IllegalArgumentException
+      expect(-> bus.addTopic '{}').to.throw exc.IllegalArgumentException
+      expect(-> bus.addTopic '][]').to.throw exc.IllegalArgumentException
 
 
 
@@ -138,8 +144,8 @@ describe.only 'common/bus/TopicBus', ->
       expect(bus.topicsRegistered 'c d').to.be.false
 
     it 'throws a UnregisteredTopicErr if the topic is not registered', ->
-      bus.addTopic 'a'
-      expect(-> bus.addTopic 'a').to.throw err.UnregisteredTopicErr
+      bus.removeTopic 'a'
+      expect(-> bus.removeTopics 'a').to.throw err.UnregisteredTopicErr
 
 
 
@@ -173,7 +179,7 @@ describe.only 'common/bus/TopicBus', ->
 
     it 'creates and returns a new Publisher object on the passed topics', ->
       p = bus.createPublisher('a b')
-      bus.sub spy
+      bus.sub 'a', spy
       m = 'test'
       p.publish 'a', m
       expect(spy.calledOnce).to.be.true
@@ -188,7 +194,7 @@ describe.only 'common/bus/TopicBus', ->
 
     it 'fires a `publish` event when a message is published', ->
       bus.on 'publish', spy
-      bus.publish 'test'
+      bus.publish 'a', 'test'
       expect(spy.calledOnce).to.be.true
 
     it 'publish event has the published message as data', ->
@@ -212,7 +218,7 @@ describe.only 'common/bus/TopicBus', ->
       expect(s2.calledWithExactly m).to.be.true
       expect(s3.calledWithExactly m).to.be.true
 
-    it 'notifies all subscribers only once if published to multiple topics', ->
+    it 'notifies subscribers once for each subscribed topic', ->
       s1 = sinon.spy()
       s2 = sinon.spy()
       s3 = sinon.spy()
@@ -220,8 +226,8 @@ describe.only 'common/bus/TopicBus', ->
       bus.sub 'c', s3
       m = 'message'
       bus.publish 'a b c', m
-      expect(s1.calledOnce).to.be.true
-      expect(s2.calledOnce).to.be.true
+      expect(s1.calledTwice).to.be.true
+      expect(s2.calledTwice).to.be.true
       expect(s3.calledOnce).to.be.true
 
     it 'works when subscribers are filtering', ->
@@ -239,9 +245,9 @@ describe.only 'common/bus/TopicBus', ->
       expect(spy.calledOnce).to.be.true
 
     it 'increments the `publish` stat', ->
-      bus.publish('test')
-      bus.publish('test')
-      bus.publish('test')
+      bus.publish 'a', 'test'
+      bus.publish 'a', 'test'
+      bus.publish 'a', 'test'
       expect(bus.stats.get 'publish').to.equal 3
 
 
@@ -270,19 +276,19 @@ describe.only 'common/bus/TopicBus', ->
       expect(bus.subscribed 'b', s3).to.be.true
 
     it 'returns a Subscriber object if a single function passed', ->
-      expect(bus.sub 'a', spy).to.be.instanceof Subscriber
+      expect(bus.sub 'a', spy).to.be.instanceof TopicSubscriber
 
-    it 'returns array of Subscriber objects if passed array', ->
+    it 'returns array of TopicSubscriber objects if passed array', ->
       r = bus.sub 'a', [s1, s2, s3]
       expect(r).to.be.instanceof Array
       _.each r, (f) ->
-        expect(f).to.be.instanceof Subscriber
+        expect(f).to.be.instanceof TopicSubscriber
 
     it 'returns array of Subscriber objects if passed multiple functions', ->
       r = bus.sub 'a', s1, s2, s3
       expect(r).to.be.instanceof Array
       _.each r, (f) ->
-        expect(f).to.be.instanceof Subscriber
+        expect(f).to.be.instanceof TopicSubscriber
 
     it 'increments the `subscribe` stat', ->
       bus.sub 'a', s1
@@ -293,6 +299,9 @@ describe.only 'common/bus/TopicBus', ->
 
 
   describe '#unsubscribe', ->
+
+    beforeEach ->
+      bus = new TopicBus 'a b c d'
 
     it 'unsubscribes a passed Subscriber object', ->
       s = bus.sub 'a', spy
@@ -324,8 +333,11 @@ describe.only 'common/bus/TopicBus', ->
 
   describe '#subscribed', ->
 
+    beforeEach ->
+      bus = new TopicBus 'a b c d'
+
     it 'returns true if passed a subscribed Subscriber object', ->
-      sub1 = bus.sub s1
+      sub1 = bus.sub 'a', s1
       expect(bus.subscribed 'a', sub1).to.be.true
 
     it 'returns true if passed a subscribed function', ->
@@ -356,6 +368,9 @@ describe.only 'common/bus/TopicBus', ->
 
   describe '#subscribersCount', ->
 
+    beforeEach ->
+      bus = new TopicBus 'a b c d'
+
     it 'returns the number of current subscribers to the topic', ->
       expect(bus.subscribersCount 'b').to.equal 0
       bus.sub 'a', s1
@@ -364,7 +379,7 @@ describe.only 'common/bus/TopicBus', ->
       expect(bus.subscribersCount 'a').to.equal 2
       expect(bus.subscribersCount 'b').to.equal 1
       expect(bus.subscribersCount 'c').to.equal 1
-      bus.unsub 'b', s1
+      bus.unsub 'b', s2
       expect(bus.subscribersCount 'a').to.equal 2
       expect(bus.subscribersCount 'b').to.equal 0
       expect(bus.subscribersCount 'c').to.equal 1

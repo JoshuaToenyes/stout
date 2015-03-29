@@ -47,6 +47,14 @@ module.exports = class Bus extends Observable
 
 
   ##
+  # Destructor method.
+  #
+  # @destructor
+
+  destroy: ->
+
+
+  ##
   # Creates and returns a new Publisher object attached to this Bus.
   #
   # @returns {Publisher} Publisher object set to publish to this bus.
