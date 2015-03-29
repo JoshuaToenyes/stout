@@ -43,16 +43,11 @@ module.exports = class Navigator extends Foundation
   constructor: ->
     super()
     @registerEvent 'navigate'
-    @_stream = new Stream
+    @locationStream = new Stream
     @_popStateListener = (e) =>
       @fire 'navigate', @location
-      @_stream.push @location
+      @locationStream.push @location
     window.addEventListener 'popstate', @_popStateListener
-
-
-
-  asStream: ->
-    return @_stream
 
 
   ##
@@ -86,7 +81,7 @@ module.exports = class Navigator extends Foundation
       throw new err.TypeErr "Expected string or number,
       but instead got #{type(location).name()}."
     @fire 'navigate', @location
-    @_stream.push @location
+    @locationStream.push @location
 
 
 

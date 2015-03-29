@@ -19,7 +19,8 @@ module.exports = class TopicSubscriber
   ##
   # Subscriber constructor.
   #
-  # @param {Array<Subscribers>} _subs - Array of buses this Subscriber subscribes to.
+  # @param {Array<Subscribers>} _subs - Array of buses this Subscriber
+  # subscribes to.
   #
   # @param {function} _fn - Callback function. This function is called whenever
   # a published message passes all this subscribers filters.

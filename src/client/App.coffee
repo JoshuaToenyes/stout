@@ -48,7 +48,7 @@ module.exports = class App extends Foundation
   # @private
 
   _setupEventListeners: ->
-    @navigator.asStream().on 'value', @router.route, @router
+    @navigator.locationStream.on 'value', @router.route, @router
     @on 'change:routes', @_updateRoutes, @
 
 

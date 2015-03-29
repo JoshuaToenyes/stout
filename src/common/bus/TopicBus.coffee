@@ -427,7 +427,7 @@ module.exports = class TopicBus extends Observable
           acc += @_topics[t].subscribersCount()
       , topics
     else
-      _.each @_topics, (bus) =>
+      _.each @_topics, (bus) ->
         acc += bus.subscribersCount()
     return acc
 
