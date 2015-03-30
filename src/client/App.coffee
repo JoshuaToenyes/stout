@@ -3,6 +3,7 @@
 Foundation = require './../common/base/Foundation'
 URLRouter  = require './../common/route/URLRouter'
 Navigator  = require './../client/nav/Navigator'
+TopicBus   = require './../common/bus/TopicBus'
 
 
 
@@ -28,6 +29,38 @@ module.exports = class App extends Foundation
     super()
     @router = new URLRouter greedy: true
     @navigator = new Navigator
+
+    ##
+    # The message bus is used for passing commands, log messages, requests
+    # and other messages around the applications. The message emitter
+    # should handle it as a "fire-and-forget" type action. Other listeners
+    # on the bus can listen for a particular message and take some action when
+    # one arrives.
+    #
+    # @property messageBus
+    # @public
+    
+    @messageBus = new TopicBus 'log nav'
+
+    ##
+    # The event bus is used for passing application-wide events.
+    #
+    # @property eventBus
+    # @public
+
+    @eventBus = new EventBus
+
+    ##
+    # The transaction bus is for moving transactional requests around the
+    # application. Transactions are unlike messages or events because they must
+    # be fulfilled. If there is not a service attached to the transaction bus
+    # which can handle a particular type of transaction, an error occurs.
+    #
+    # @property transactionBus
+    # @public
+
+    #@transactionBus = new TransactionBus
+
     @_setupEventListeners()
 
 
