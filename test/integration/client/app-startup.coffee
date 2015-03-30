@@ -6,7 +6,7 @@ App         = require './../../../dist/client/App'
 MockBrowser = require('mock-browser').mocks.MockBrowser
 
 
-describe 'client', ->
+describe.skip 'client', ->
 
   describe 'app startup', ->
 
