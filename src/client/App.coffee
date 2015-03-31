@@ -37,13 +37,18 @@ module.exports = class App extends Foundation
     # on the bus can listen for a particular message and take some action when
     # one arrives.
     #
+    # A message on a topic bus, expressed as a sentence is, "If anybody's out
+    # there, please do this."
+    #
     # @property messageBus
     # @public
-    
+
     @messageBus = new TopicBus 'log nav'
 
     ##
     # The event bus is used for passing application-wide events.
+    #
+    # An event is analogous to, "This just happened, if anybody cares."
     #
     # @property eventBus
     # @public
@@ -55,6 +60,9 @@ module.exports = class App extends Foundation
     # application. Transactions are unlike messages or events because they must
     # be fulfilled. If there is not a service attached to the transaction bus
     # which can handle a particular type of transaction, an error occurs.
+    #
+    # A transaction sounds something like, "I *need* somebody to do this, and
+    # tell of the result."
     #
     # @property transactionBus
     # @public

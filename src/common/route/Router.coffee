@@ -4,6 +4,7 @@
 #
 # @author Joshua Toenyes <joshua.toenyes@me.com>
 
+_         = require 'lodash'
 Route     = require './Route'
 
 
@@ -36,6 +37,14 @@ module.exports = class Router
 
   constructor: (@opts = {}) ->
     @opts.greedy ?= false
+
+    ##
+    # The routes object is an internall collection of Route or Route-like
+    # object.
+    #
+    # @member routes
+    # @protected
+
     @routes = []
 
 
@@ -138,3 +147,18 @@ module.exports = class Router
 
   clear: ->
     @routes = []
+
+
+  ##
+  # Iterates the passed iterator function over each route contained in this
+  # router. Optionally, a call scope may be defined.
+  #
+  # @param {function} fn - Iterator function.
+  #
+  # @param {*} scope - The `this` reference for the call to `fn`.
+  #
+  # @method each
+  # @protected
+
+  each: (fn, scope) ->
+    _.each @routes, fn, scope

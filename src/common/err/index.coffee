@@ -132,3 +132,12 @@ defineErr 'UnregisteredTopicErr'
 # @class RegisteredTopicErr
 
 defineErr 'RegisteredTopicErr'
+
+
+##
+# Thrown for route-related errors, e.g. a matching route was expected but one
+# was not found.
+#
+# @class RouteErr
+
+defineErr 'RouteErr'
