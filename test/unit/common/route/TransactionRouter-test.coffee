@@ -9,7 +9,7 @@ TransactionRoute  = require './../../../../dist/common/route/TransactionRoute'
 
 
 
-describe.only 'common/route/TransactionRouter', ->
+describe 'common/route/TransactionRouter', ->
 
   router = null
   matcher = null

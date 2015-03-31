@@ -4,6 +4,7 @@ Foundation = require './../common/base/Foundation'
 URLRouter  = require './../common/route/URLRouter'
 Navigator  = require './../client/nav/Navigator'
 TopicBus   = require './../common/bus/TopicBus'
+EventBus   = require './../common/bus/EventBus'
 
 
 

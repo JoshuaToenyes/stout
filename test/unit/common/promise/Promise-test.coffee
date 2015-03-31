@@ -19,7 +19,7 @@ makeRejectPromise = (reason) ->
 
 
 
-describe.only 'common/promise/Promise', ->
+describe 'common/promise/Promise', ->
 
   spy = s1 = s2 = s3 = s4 = null
 
