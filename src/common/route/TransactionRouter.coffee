@@ -46,8 +46,9 @@ module.exports = class TransactionRouter extends Router
   # @public
 
   add: (matcher, handler) ->
-    r = new Route matcher, handler
+    r = new TransactionRoute matcher, handler
     super r
+    return r
 
 
   ##
@@ -66,7 +67,7 @@ module.exports = class TransactionRouter extends Router
   route: (request) ->
     promise = null
     @each (route) ->
-      promise = r.exec(request)
+      promise = route.exec(request)
       if promise isnt null then return false
     if promise is null
       throw new err.RouteErr "No matching transaction handler found."
