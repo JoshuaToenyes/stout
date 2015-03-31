@@ -1,10 +1,11 @@
 
 
-Foundation = require './../common/base/Foundation'
-URLRouter  = require './../common/route/URLRouter'
-Navigator  = require './../client/nav/Navigator'
-TopicBus   = require './../common/bus/TopicBus'
-EventBus   = require './../common/bus/EventBus'
+Foundation        = require './../common/base/Foundation'
+URLRouter         = require './../common/route/URLRouter'
+Navigator         = require './../client/nav/Navigator'
+TopicBus          = require './../common/bus/TopicBus'
+EventBus          = require './../common/bus/EventBus'
+TransactionRouter = require './../common/route/TransactionRouter'
 
 
 
@@ -28,7 +29,26 @@ module.exports = class App extends Foundation
 
   constructor: ->
     super()
+
+    ##
+    # The router is responsible for notifying URL route handlers when the URL
+    # changes. The navigator watches for changes to the URL, which then notifies
+    # the router, who routes the URL to the appropriate handler.
+    #
+    # @property router
+    # @public
+
     @router = new URLRouter greedy: true
+
+    ##
+    # The navigator is responsible for listening-for and handling URL changes,
+    # and changing the URL as appropriate during application execution so users
+    # can returns to a specific place in the app based on a bookmarked, or
+    # manually entered URL.
+    #
+    # @property navigator
+    # @public
+
     @navigator = new Navigator
 
     ##
@@ -44,7 +64,7 @@ module.exports = class App extends Foundation
     # @property messageBus
     # @public
 
-    @messageBus = new TopicBus 'log nav'
+    @messageBus = new TopicBus 'log nav:goto nav:back'
 
     ##
     # The event bus is used for passing application-wide events.
@@ -57,20 +77,20 @@ module.exports = class App extends Foundation
     @eventBus = new EventBus
 
     ##
-    # The transaction bus is for moving transactional requests around the
+    # The transaction router is for moving transactional requests around the
     # application. Transactions are unlike messages or events because they must
-    # be fulfilled. If there is not a service attached to the transaction bus
+    # be fulfilled. If there is not a service attached to the transaction route
     # which can handle a particular type of transaction, an error occurs.
     #
     # A transaction sounds something like, "I *need* somebody to do this, and
-    # tell of the result."
+    # tell me of the result."
     #
-    # @property transactionBus
+    # @property transactionRouter
     # @public
 
-    #@transactionBus = new TransactionBus
+    @transactionRouter = new TransactionRouter
 
-    @_setupEventListeners()
+    @_setup()
 
 
   ##
@@ -86,12 +106,18 @@ module.exports = class App extends Foundation
   ##
   # Sets up internal event listeners.
   #
-  # @method _setupEventListeners
+  # @method _setup
   # @private
 
-  _setupEventListeners: ->
+  _setup: ->
+
+    # Forward URL changes to the router for routing to correct route handler.
     @navigator.locationStream.on 'value', @router.route, @router
     @on 'change:routes', @_updateRoutes, @
+
+    # Subscribe to navigation events.
+    @messageBus.subscribe 'nav:goto', (url) => @navigator.goto url
+    @messageBus.subscribe 'nav:back', (url) => @navigator.back()
 
 
   ##
