@@ -1,3 +1,5 @@
+modRewrite = require('connect-modrewrite');
+
 module.exports = (grunt) ->
 
   config =
@@ -11,7 +13,7 @@ module.exports = (grunt) ->
 
     coffee:
       options:
-        sourceMap: true
+        sourceMap: false
       app:
         expand: true
         flatten: false
@@ -30,7 +32,7 @@ module.exports = (grunt) ->
     browserify:
       test:
         files:
-          'test/integration/client/basic-app.js': ['test/integration/client/basic-app.js']
+          'test/integration/client/app-startup.js': ['test/integration/client/app-startup.js']
 
     watch:
       compile:
@@ -65,6 +67,21 @@ module.exports = (grunt) ->
         src: ['test/integration/**/*.js']
 
 
+    connect:
+      server:
+        options:
+          port: 9999
+          base: 'test/integration/client'
+          middleware: (connect, options, middlewares) ->
+            middlewares.unshift(modRewrite(['!\\.html|\\.js|\\.svg|\\.css|\\.png$ /index.html [L]']))
+            return middlewares
+
+    open:
+      test:
+        path: 'http://localhost:9999/test/integration/client'
+        app: 'Safari'
+
+
   grunt.initConfig(config)
   grunt.loadNpmTasks 'grunt-coffeelint'
   grunt.loadNpmTasks 'grunt-browserify'
@@ -72,6 +89,8 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-mocha-test'
+  grunt.loadNpmTasks 'grunt-contrib-connect'
+  grunt.loadNpmTasks 'grunt-open'
 
   grunt.registerTask 'compile', [
     'coffeelint'
@@ -91,5 +110,8 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'test:integration', [
     'compile'
+    #'connect:server'
     'mochaTest:integration'
+    #'browserify'
+    #'open:test
   ]
