@@ -182,5 +182,6 @@ module.exports = class Stream extends Foundation
   # @public
 
   push: (v) ->
+    if v is @_last then return
     @_last = v
     @fire VALUE_EVENT, v

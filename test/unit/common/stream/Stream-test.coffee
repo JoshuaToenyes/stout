@@ -115,14 +115,14 @@ describe 'common/stream/Stream', ->
       s.on 'value', s3
       expect(s.count 'value').to.equal 3
       s.push 1
-      s.push 1
+      s.push 2
       expect(s1.calledTwice).to.be.true
       expect(s2.calledTwice).to.be.true
       expect(s3.calledTwice).to.be.true
       s.dump 'value'
       expect(s.count 'value').to.equal 0
-      s.push 2
-      s.push 2
+      s.push 3
+      s.push 4
       expect(s1.calledTwice).to.be.true
       expect(s2.calledTwice).to.be.true
       expect(s3.calledTwice).to.be.true
@@ -133,14 +133,14 @@ describe 'common/stream/Stream', ->
       s.on 'event', s3
       expect(s.count 'event').to.equal 3
       s.push 1
-      s.push 1
+      s.push 2
       expect(s1.calledTwice).to.be.true
       expect(s2.calledTwice).to.be.true
       expect(s3.calledTwice).to.be.true
       s.dump 'event'
       expect(s.count 'event').to.equal 0
-      s.push 2
-      s.push 2
+      s.push 3
+      s.push 4
       expect(s1.calledTwice).to.be.true
       expect(s2.calledTwice).to.be.true
       expect(s3.calledTwice).to.be.true
