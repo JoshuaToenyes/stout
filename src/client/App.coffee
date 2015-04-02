@@ -92,6 +92,8 @@ module.exports = class App extends Foundation
 
     @_setup()
 
+    @_started = false
+
 
   ##
   # Starts the app and routes based on initial location.
@@ -100,7 +102,9 @@ module.exports = class App extends Foundation
   # @public
 
   start: ->
-    @router.route window.location.pathname
+    if @_started then return
+    @_started = true
+
 
 
   ##
@@ -112,8 +116,10 @@ module.exports = class App extends Foundation
   _setup: ->
 
     # Forward URL changes to the router for routing to correct route handler.
-    @navigator.locationStream.on 'value', @router.route, @router
     @on 'change:routes', @_updateRoutes, @
+
+    # Whenever the location changes, route to the new location.
+    @navigator.locationStream.on 'value', @router.route, @router
 
     # Subscribe to navigation events.
     @messageBus.subscribe 'nav:goto', (url) => @navigator.goto url
