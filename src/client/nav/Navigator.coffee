@@ -47,7 +47,15 @@ module.exports = class Navigator extends Foundation
     @_popStateListener = (e) =>
       @fire 'navigate', @location
       @locationStream.push @location
+
+    # Listen for the window's popstate event. Some browsers fire this on load,
+    # and others do not.
     window.addEventListener 'popstate', @_popStateListener
+
+    # For browsers that do not fire a popstate on load, push the location change
+    # to the stream so we have a good starting point.
+    window.addEventListener 'load', =>
+      @locationStream.push window.location.pathname
 
 
   ##
