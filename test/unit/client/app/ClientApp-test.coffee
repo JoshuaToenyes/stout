@@ -2,12 +2,12 @@ _           = require 'lodash'
 chai        = require 'chai'
 sinon       = require 'sinon'
 expect      = chai.expect
-App         = require './../../../dist/client/App'
+ClientApp   = require './../../../../dist/client/app/ClientApp'
 MockBrowser = require('mock-browser').mocks.MockBrowser
 
 
 
-describe 'client/App', ->
+describe 'client/app/ClientApp', ->
 
   app = null
   spy = null
@@ -15,7 +15,7 @@ describe 'client/App', ->
   beforeEach ->
     mock = new MockBrowser()
     global.window = mock.getWindow()
-    app = new App
+    app = new ClientApp
     spy = sinon.spy()
 
   it 'has #routes property', ->

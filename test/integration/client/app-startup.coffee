@@ -2,7 +2,7 @@ _           = require 'lodash'
 chai        = require 'chai'
 sinon       = require 'sinon'
 expect      = chai.expect
-App         = require './../../../dist/client/App'
+ClientApp   = require './../../../dist/client/app/ClientApp'
 MockBrowser = require('mock-browser').mocks.MockBrowser
 
 
@@ -13,7 +13,7 @@ describe 'client', ->
     app = s1 = s2 = s3 = null
 
     setupApp = ->
-      app = new App()
+      app = new ClientApp()
       s1 = sinon.spy()
       s2 = sinon.spy()
       s3 = sinon.spy()

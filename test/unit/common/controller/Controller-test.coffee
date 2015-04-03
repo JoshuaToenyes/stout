@@ -2,10 +2,8 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-Presenter  = require './../../../../dist/common/presenter/Presenter'
+Controller = require './../../../../dist/common/controller/Controller'
 
 
 
-describe 'common/presenter/Presenter', ->
-
-  
+describe 'common/controller/Controller', ->
