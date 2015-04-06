@@ -40,6 +40,8 @@ module.exports = class ClientApp extends App
     # Whenever the location changes, route to the new location.
     @navigator.locationStream.on 'value', @router.route, @router
 
+    @messageBus.addTopic 'nav:goto nav:back'
+
     # Subscribe to navigation events.
-    # @messageBus.subscribe 'nav:goto', (url) => @navigator.goto url
-    # @messageBus.subscribe 'nav:back', (url) => @navigator.back()
+    @messageBus.subscribe 'nav:goto', (url) => @navigator.goto url
+    @messageBus.subscribe 'nav:back', (url) => @navigator.back()

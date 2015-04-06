@@ -41,7 +41,13 @@ module.exports = class ClientView extends View
 
   constructor: ->
     super arguments...
+    @.registerEvent 'click:anchor'
     @el = document.createElement @tagName
 
   render: ->
     @$el.html super()
+    self = @
+    @$el.find('a').click (e) ->
+      e.preventDefault()
+      self.fire 'click:anchor', this.href
+      return false
