@@ -22,32 +22,58 @@ module.exports = class ClientView extends View
   # @property el
   # @public
 
-  @property 'el',
-    set: (e) ->
-      @$el = $(e)
-      return e
+  @property 'el'
 
   ##
-  # Cached reference to the jQuery object.
+  # ClientView constructor registers view events and passes initialization
+  # arguments to the parent View class.
   #
-  # @property $el
-  # @public
-
-  @property '$el'
-
-  ##
+  # @param {Object} model - The model to be represented by this view.
+  #
+  # @param {function} template - The template function for this view.
   #
   # @constructor
 
   constructor: ->
     super arguments...
-    @.registerEvent 'click:anchor'
+    @registerEvent 'click:anchor'
     @el = document.createElement @tagName
 
+
+  ##
+  # Iterates the passed callback function over each matching element.
+  #
+  # @param {string} selector - Selector string, as used with
+  # `document.querySelector` or `document.querySelectorAll`.
+  #
+  # @param {function} cb - Callback function called with the matching element
+  # as `this`.
+  #
+  # @method querySelectorEach
+  # @public
+
+  querySelectorEach: (selector, cb) ->
+    els = @el.querySelectorAll(selector)
+    for e in els
+      cb.call e
+
+
+  ##
+  # Renders the client view by replacing the container HTML with the contents
+  # returned by the rendering function. Additionally, it attaches generic view
+  # events such as internal app anchor clicks.
+  #
+  # Each time the `#render()` function is called, the internal model is passed
+  # to the template function as scope for template variables.
+  #
+  # @method render
+  # @public
+
   render: ->
-    @$el.html super()
+    @el.innerHTML = super()
     self = @
-    @$el.find('a:not([target])').click (e) ->
-      e.preventDefault()
-      self.fire 'click:anchor', this.href
-      return false
+    @querySelectorEach 'a:not([target])', ->
+      this.addEventListener 'click', (e) ->
+        e.preventDefault()
+        self.fire 'click:anchor', this.href
+        return false

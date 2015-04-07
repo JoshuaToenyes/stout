@@ -17,6 +17,7 @@
     "url-parse": "1.0.x",
     "query-string": "1.0.x",
     "mock-browser": "0.90.x",
+    "jsdom": "3.x",
     "grunt": "0.4.x",
     "grunt-browserify": "3.0.x",
     "grunt-coffeelint": "0.0.13",
