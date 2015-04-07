@@ -13,7 +13,6 @@ describe 'client/view/ClientView', ->
     mock = new MockBrowser()
     global.document = mock.getDocument()
     global.window = mock.getWindow()
-    global.$ = require './../../../../lib/jquery-2.1.3.min.js'
     v = new ClientView()
 
   it 'has #tagName property', ->

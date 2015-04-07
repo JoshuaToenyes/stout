@@ -10,13 +10,14 @@ MockBrowser = require('mock-browser').mocks.MockBrowser
 
 describe 'client/nav/Navigator', ->
 
-  nav = mock = spy =null
+  nav = mock = spy = spy2 = null
 
   beforeEach ->
     mock = new MockBrowser()
     global.window = mock.getWindow()
     nav = new Navigator()
     spy = sinon.spy()
+    spy2 = sinon.spy()
 
   afterEach ->
     nav.destroy()
@@ -77,6 +78,9 @@ describe 'client/nav/Navigator', ->
 
   describe '#goto()', ->
 
+    beforeEach ->
+      window.location.href = 'http://example.com'
+
     it 'changes the history location', ->
       nav.goto '/test'
       expect(nav.location).to.equal '/test'
@@ -109,6 +113,31 @@ describe 'client/nav/Navigator', ->
       expect(-> nav.goto []).to.throw err.TypeErr, /got Array/
       expect(-> nav.goto {}).to.throw err.TypeErr, /got Object/
       expect(-> nav.goto true).to.throw err.TypeErr, /got boolean/
+
+    it 'performs internal navigation for relative URLs', ->
+      nav.on 'navigate:internal', spy
+      nav.on 'navigate:external', spy2
+      expect(window.location.href).to.equal 'http://example.com/'
+      nav.goto '/test'
+      expect(window.location.href).to.equal 'http://example.com/test'
+      nav.goto '/test/123'
+      expect(window.location.href).to.equal 'http://example.com/test/123'
+      expect(spy.calledTwice).to.be.true
+      expect(spy2.called).to.be.false
+
+    it 'performs external navigation for non-matching URLs', ->
+      nav.on 'navigate:internal', spy
+      nav.on 'navigate:external', spy2
+      expect(window.location.href).to.equal 'http://example.com/'
+      nav.goto 'http://google.com/'
+      expect(window.location.href).to.equal 'http://google.com/'
+      expect(spy.called).to.be.false
+      expect(spy2.called).to.be.true
+
+    it 'performs internal navigation for URLs matching URLs', ->
+      expect(window.location.href).to.equal 'http://example.com/'
+      nav.goto 'http://example.com/test/123'
+      expect(window.location.href).to.equal 'http://example.com/test/123'
 
 
 
