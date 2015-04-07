@@ -47,7 +47,7 @@ module.exports = class ClientView extends View
   render: ->
     @$el.html super()
     self = @
-    @$el.find('a').click (e) ->
+    @$el.find('a:not([target])').click (e) ->
       e.preventDefault()
       self.fire 'click:anchor', this.href
       return false

@@ -9,6 +9,8 @@ Foundation = require './../../common/base/Foundation'
 err        = require './../../common/err'
 type       = require './../../common/utilities/type'
 Stream     = require './../../common/stream/Stream'
+regex      = require './../../common/utilities/regex'
+url        = require './../../common/utilities/url'
 
 
 ##
@@ -35,13 +37,40 @@ module.exports = class Navigator extends Foundation
 
 
   ##
+  # The base pathname.
+  #
+  # @property base
+  # @const
+  # @public
+
+  @property 'base',
+    default: ''
+    set: (base) ->
+      if _.isString base
+        return new RegExp '^' + regex.escape base
+      else if base instanceof RegExp
+        return base
+      else
+        throw new err.TypeErr "Expect string or RegExp, but instead
+        got #{type(base).name()}."
+
+
+  ##
   # Navigator class constructor. Attaches to the `onpopstate` event to
   # trigger a `navigate` event whenever the user presses the back button.
   #
+  # @param {Object} [opts] - Optional initial configuration object.
+  #
+  # @param {string} [opts.base='/'] - Optional base pathname for this Navigator.
+  # The Navigator object uses this base path to determine if an in-app
+  # navigation should occur or if the browser should navigate to a different
+  # URL entirely (internal vs. external navigation). Relative navigation (i.e.
+  # URLs that do not contain a leading `/` will always be treated as internal).
+  #
   # @constructor
 
-  constructor: ->
-    super()
+  constructor: (opts) ->
+    super(opts)
     @registerEvent 'navigate'
     @locationStream = new Stream
     @_popStateListener = (e) =>
@@ -77,17 +106,40 @@ module.exports = class Navigator extends Foundation
   #
   # @fires navigate - New location set as event data.
   #
+  # @todo Write more tests for this method, specifically the base url
+  # functionality.
+  #
   # @method goto
   # @public
 
   goto: (location) ->
     if _.isString location
-      window.history.pushState null, '', location
+      if location.length is 0
+        throw new err.IllegalArgumentErr "Got zero-length string as
+        navigation target."
+
+      # If navigating to another origin, change the browser location.
+      if location.indexOf(window.location.origin) isnt 0
+        window.location = location
+
+      # If the URL matches the base URL, then treat it as an internal URL and
+      # navigate to it by triggering a `navigate` event and pushing-state.
+      else if @base.test(location)
+        window.history.pushState null, '', location
+
+      # Otherwise, treat it as an external URL.
+      else
+        window.location = location
+
+    # If the passed location is a number, treat it as a history index.
     else if _.isNumber location
       window.history.go location
+
+    # Otherwise, throw a TypeErr.
     else
       throw new err.TypeErr "Expected string or number,
       but instead got #{type(location).name()}."
+
     @fire 'navigate', @location
     @locationStream.push @location
 
