@@ -3,17 +3,26 @@ chai        = require 'chai'
 sinon       = require 'sinon'
 expect      = chai.expect
 ClientView  = require './../../../../dist/client/view/ClientView'
+Model       = require './../../../../dist/common/model/Model'
 MockBrowser = require('mock-browser').mocks.MockBrowser
+
+class TestModel extends Model
+  @property 'first'
+  @property 'last'
+
+
 
 describe 'client/view/ClientView', ->
 
-  v = null
+  m = v = s1 = null
 
   beforeEach ->
     mock = new MockBrowser()
     global.document = mock.getDocument()
     global.window = mock.getWindow()
     v = new ClientView()
+    s1 = sinon.spy()
+    m = new TestModel first: 'John', last: 'Smith'
 
   it 'has #tagName property', ->
     expect(v).to.have.property 'tagName'
@@ -30,8 +39,8 @@ describe 'client/view/ClientView', ->
 
     it 'passes initialization parameters to parent View class', ->
       tmpl = ->
-      model = {}
-      v = new ClientView(model, tmpl)
+      model = new TestModel
+      v = new ClientView(tmpl, model)
       expect(v.model).to.equal model
       expect(v.template).to.equal tmpl
 
@@ -40,6 +49,27 @@ describe 'client/view/ClientView', ->
 
     it 'registers the `click:anchor` event', ->
       expect(v.registered 'click').to.be.true
+
+    it 'automatically re-renders the view when the model changes', ->
+      f = (model) ->
+        expect(model.first).to.equal m.first
+        expect(model.last).to.equal m.last
+      v = new ClientView f, m
+      v.render()
+      v.on 'render', s1
+      expect(s1.called).to.be.false
+      m.first = 'Jane'
+      expect(s1.calledOnce).to.be.true
+      m.last = 'Doe'
+      expect(s1.calledTwice).to.be.true
+
+    it 'does not auto re-render if `renderOnChange` option set to false', ->
+      v = new ClientView (->), m, {renderOnChange: false}
+      v.render()
+      v.on 'render', s1
+      m.first = 'Jane'
+      m.last = 'Doe'
+      expect(s1.called).to.be.false
 
 
 
@@ -54,7 +84,7 @@ describe 'client/view/ClientView', ->
       </ul>"
 
     beforeEach ->
-      v = new ClientView null, -> html
+      v = new ClientView -> html
 
     it 'iterates the callback over each matching element', ->
       count = 0
@@ -73,7 +103,7 @@ describe 'client/view/ClientView', ->
     html = '<a href="/someplace">test anchor</a>'
 
     beforeEach ->
-      v = new ClientView null, -> html
+      v = new ClientView -> html
 
     click = (el) ->
       e = document.createEvent("MouseEvents");
@@ -96,7 +126,7 @@ describe 'client/view/ClientView', ->
     it 'does not attach click listeners to anchors with targets', (done) ->
       html = '<a target="_blank" href="/">test anchor</a>'
       t = -> return html
-      v = new ClientView null, t
+      v = new ClientView t
       v.render()
       a = v.el.querySelector 'a'
       click(a)

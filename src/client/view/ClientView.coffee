@@ -26,17 +26,26 @@ module.exports = class ClientView extends View
 
   ##
   # ClientView constructor registers view events and passes initialization
-  # arguments to the parent View class.
-  #
-  # @param {Object} model - The model to be represented by this view.
+  # arguments to the parent View class
   #
   # @param {function} template - The template function for this view.
   #
+  # @param {Model} [model] - The model to be represented by this view.
+  #
+  # @param {Object} [opts={}] - Options object.
+  #
+  # @param {boolean} [opts.renderOnChange=true] - Option to prevent
+  # automatically rendering the view on a model change event. Set to `false` if
+  # manual rendering is desired.
+  #
   # @constructor
 
-  constructor: ->
-    super arguments...
+  constructor: (template, model, @opts = {}) ->
+    super template, model
     @registerEvent 'click:anchor'
+    @opts.renderOnChange ?= true
+    if @opts.renderOnChange
+      model?.on 'change', @render, @
     @el = document.createElement @tagName
 
 

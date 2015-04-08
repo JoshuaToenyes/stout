@@ -7,7 +7,7 @@
 # @requires uuid
 
 uuid       = require 'uuid'
-Foundation = require './../foundation'
+Foundation = require './../base/Foundation'
 
 
 ##

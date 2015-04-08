@@ -42,8 +42,8 @@ module.exports = class View extends Foundation
   #
   # @constructor
 
-  constructor: (model, template) ->
-    super model: model, template: template
+  constructor: (template, model) ->
+    super template: template, model: model
     @registerEvent 'render'
 
 

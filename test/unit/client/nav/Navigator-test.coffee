@@ -134,7 +134,7 @@ describe 'client/nav/Navigator', ->
       expect(spy.called).to.be.false
       expect(spy2.called).to.be.true
 
-    it 'performs internal navigation for URLs matching URLs', ->
+    it 'performs internal navigation for matching URLs', ->
       expect(window.location.href).to.equal 'http://example.com/'
       nav.goto 'http://example.com/test/123'
       expect(window.location.href).to.equal 'http://example.com/test/123'
