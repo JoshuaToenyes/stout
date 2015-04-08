@@ -1,5 +1,9 @@
 
+_    = require 'lodash'
 View = require './../../common/view/View'
+dom  = require './../../common/utilities/dom'
+
+
 
 module.exports = class ClientView extends View
 
@@ -17,12 +21,46 @@ module.exports = class ClientView extends View
     default: 'div'
 
   ##
+  # The value of the `class` attribute to set on the created-element for this
+  # view.
+  #
+  # @property className
+  # @public
+
+  @property 'className'
+
+  ##
+  # The value of the `id` attribute to set on the created-element for this
+  # view.
+  #
+  # @property id
+  # @public
+
+  @property 'id'
+
+  ##
   # Reference to view's DOM node of type `tagName`.
   #
   # @property el
   # @public
 
-  @property 'el'
+  @property 'el',
+    get: (el) ->
+      if el is null
+        el = document.createElement @tagName
+        dom.addClass el, @className
+        el.id = @id
+      @el = el
+      return el
+
+
+  @property 'events',
+    default: {},
+    set: (es) ->
+      # Register each event on this view, if not already registered.
+      _.forEach es, (e) =>
+        @registerEvent(e) unless @registered(e)
+
 
   ##
   # ClientView constructor registers view events and passes initialization
@@ -46,7 +84,6 @@ module.exports = class ClientView extends View
     @opts.renderOnChange ?= true
     if @opts.renderOnChange
       model?.on 'change', @render, @
-    @el = document.createElement @tagName
 
 
   ##
@@ -80,9 +117,38 @@ module.exports = class ClientView extends View
 
   render: ->
     @el.innerHTML = super()
+    @_bindDefaultEvents()
+    @_bindCustomEvents()
+
+
+  ##
+  # Binds the default view events.
+  #
+  # @_bindDefaultEvents
+  # @private
+
+  _bindDefaultEvents: ->
     self = @
     @querySelectorEach 'a:not([target])', ->
       this.addEventListener 'click', (e) ->
         e.preventDefault()
         self.fire 'click:anchor', this.href
         return false
+
+
+  ##
+  # Binds custom events described in the `events` property.
+  #
+  # @_bindCustomEvents
+  # @private
+
+  _bindCustomEvents: ->
+    self = @
+    _.forEach @events, (v, k) ->
+      event = k.substring 0, k.indexOf(' ')
+      selector = k.substring k.indexOf(' ') + 1
+
+      # Attach the listener to the UI elements.
+      self.querySelectorEach selector, ->
+        this.addEventListener event, (e) ->
+          self.fire v, e
