@@ -1,6 +1,7 @@
 
 _    = require 'lodash'
 View = require './../../common/view/View'
+Map  = require './../../common/collection/Map'
 dom  = require './../../common/utilities/dom'
 
 
@@ -20,6 +21,7 @@ module.exports = class ClientView extends View
   @property 'tagName',
     default: 'div'
 
+
   ##
   # The value of the `class` attribute to set on the created-element for this
   # view.
@@ -29,6 +31,7 @@ module.exports = class ClientView extends View
 
   @property 'className'
 
+
   ##
   # The value of the `id` attribute to set on the created-element for this
   # view.
@@ -37,6 +40,7 @@ module.exports = class ClientView extends View
   # @public
 
   @property 'id'
+
 
   ##
   # Reference to view's DOM node of type `tagName`.
@@ -48,18 +52,41 @@ module.exports = class ClientView extends View
     get: (el) ->
       if el is null
         el = document.createElement @tagName
-        dom.addClass el, @className
-        el.id = @id
-      @el = el
+        dom.addClass(el, @className) unless @className is null
+        el.id = @id unless @id is null
+        @el = el
       return el
 
+
+  ##
+  # Using the `events` property, developers can trigger arbitrary view events
+  # based on user interaction with the rendered view.
+  #
+  # @example Suppose the view should trigger a `foo` event whenever the user
+  # clicks on an element with the id `bar`. This could be accomplished by
+  # setting the `events` property as follows:
+  #
+  #   @events = 'foo': 'click #bar'
+  #
+  # @property events
+  # @public
 
   @property 'events',
     default: {},
     set: (es) ->
       # Register each event on this view, if not already registered.
-      _.forEach es, (e) =>
-        @registerEvent(e) unless @registered(e)
+      self = @
+      _.forEach es, (event, specifier) ->
+        self.registerEvent(event) unless self.registered(event)
+        self._customEventHandlers.put (event + specifier), (e) ->
+          self.fire event, e
+
+
+  ##
+  # Holds all custom event handlers.
+  #
+  # @property _customEventHandlers
+  # @private
 
 
   ##
@@ -80,10 +107,17 @@ module.exports = class ClientView extends View
 
   constructor: (template, model, @opts = {}) ->
     super template, model
+    self = @
     @registerEvent 'click:anchor'
     @opts.renderOnChange ?= true
     if @opts.renderOnChange
       model?.on 'change', @render, @
+
+    @_customEventHandlers = new Map
+
+    @_onAnchorClick = (e) ->
+      e.preventDefault()
+      self.fire 'click:anchor', this.href
 
 
   ##
@@ -116,9 +150,18 @@ module.exports = class ClientView extends View
   # @public
 
   render: ->
+    @_unbindDefaultEvents()
+    @_unbindCustomEvents()
+    @empty()
     @el.innerHTML = super()
     @_bindDefaultEvents()
     @_bindCustomEvents()
+    return @el
+
+
+  empty: ->
+    while @el.firstChild
+      @el.removeChild @el.firstChild
 
 
   ##
@@ -130,10 +173,19 @@ module.exports = class ClientView extends View
   _bindDefaultEvents: ->
     self = @
     @querySelectorEach 'a:not([target])', ->
-      this.addEventListener 'click', (e) ->
-        e.preventDefault()
-        self.fire 'click:anchor', this.href
-        return false
+      this.addEventListener 'click', self._onAnchorClick
+
+
+  ##
+  #
+  #
+  # @_unbindDefaultEvents
+  # @private
+
+  _unbindDefaultEvents: ->
+    self = @
+    @querySelectorEach 'a:not([target])', ->
+      this.removeEventListener 'click', self._onAnchorClick
 
 
   ##
@@ -144,11 +196,29 @@ module.exports = class ClientView extends View
 
   _bindCustomEvents: ->
     self = @
-    _.forEach @events, (v, k) ->
-      event = k.substring 0, k.indexOf(' ')
+    _.forEach @events, (fireEvent, k) ->
+      domEvent = k.substring 0, k.indexOf(' ')
       selector = k.substring k.indexOf(' ') + 1
 
       # Attach the listener to the UI elements.
       self.querySelectorEach selector, ->
-        this.addEventListener event, (e) ->
-          self.fire v, e
+        this.addEventListener domEvent,
+          self._customEventHandlers.get(fireEvent + k)
+
+
+  ##
+  #
+  #
+  # @_unbindCustomEvents
+  # @private
+
+  _unbindCustomEvents: ->
+    self = @
+    _.forEach @events, (fireEvent, k) ->
+      domEvent = k.substring 0, k.indexOf(' ')
+      selector = k.substring k.indexOf(' ') + 1
+
+      # Attach the listener to the UI elements.
+      self.querySelectorEach selector, ->
+        this.removeEventListener domEvent,
+          self._customEventHandlers.get(fireEvent + k)
