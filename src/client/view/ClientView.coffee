@@ -1,7 +1,6 @@
 
 _    = require 'lodash'
 View = require './../../common/view/View'
-Map  = require './../../common/collection/Map'
 dom  = require './../../common/utilities/dom'
 
 
@@ -78,15 +77,6 @@ module.exports = class ClientView extends View
       self = @
       _.forEach es, (event, specifier) ->
         self.registerEvent(event) unless self.registered(event)
-        self._customEventHandlers.put (event + specifier), (e) ->
-          self.fire event, e
-
-
-  ##
-  # Holds all custom event handlers.
-  #
-  # @property _customEventHandlers
-  # @private
 
 
   ##
@@ -112,8 +102,6 @@ module.exports = class ClientView extends View
     @opts.renderOnChange ?= true
     if @opts.renderOnChange
       model?.on 'change', @render, @
-
-    @_customEventHandlers = new Map
 
     @_onAnchorClick = (e) ->
       e.preventDefault()
@@ -150,8 +138,6 @@ module.exports = class ClientView extends View
   # @public
 
   render: ->
-    @_unbindDefaultEvents()
-    @_unbindCustomEvents()
     @empty()
     @el.innerHTML = super()
     @_bindDefaultEvents()
@@ -173,19 +159,9 @@ module.exports = class ClientView extends View
   _bindDefaultEvents: ->
     self = @
     @querySelectorEach 'a:not([target])', ->
-      this.addEventListener 'click', self._onAnchorClick
-
-
-  ##
-  #
-  #
-  # @_unbindDefaultEvents
-  # @private
-
-  _unbindDefaultEvents: ->
-    self = @
-    @querySelectorEach 'a:not([target])', ->
-      this.removeEventListener 'click', self._onAnchorClick
+      this.addEventListener 'click', (e) ->
+        e.preventDefault()
+        self.fire 'click:anchor', this.href
 
 
   ##
@@ -202,23 +178,5 @@ module.exports = class ClientView extends View
 
       # Attach the listener to the UI elements.
       self.querySelectorEach selector, ->
-        this.addEventListener domEvent,
-          self._customEventHandlers.get(fireEvent + k)
-
-
-  ##
-  #
-  #
-  # @_unbindCustomEvents
-  # @private
-
-  _unbindCustomEvents: ->
-    self = @
-    _.forEach @events, (fireEvent, k) ->
-      domEvent = k.substring 0, k.indexOf(' ')
-      selector = k.substring k.indexOf(' ') + 1
-
-      # Attach the listener to the UI elements.
-      self.querySelectorEach selector, ->
-        this.removeEventListener domEvent,
-          self._customEventHandlers.get(fireEvent + k)
+        this.addEventListener domEvent, (e) ->
+          self.fire fireEvent, e
