@@ -103,10 +103,6 @@ module.exports = class ClientView extends View
     if @opts.renderOnChange
       model?.on 'change', @render, @
 
-    @_onAnchorClick = (e) ->
-      e.preventDefault()
-      self.fire 'click:anchor', this.href
-
 
   ##
   # Iterates the passed callback function over each matching element.
