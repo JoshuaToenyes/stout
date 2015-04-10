@@ -2,9 +2,9 @@ _           = require 'lodash'
 chai        = require 'chai'
 sinon       = require 'sinon'
 expect      = chai.expect
-Bus         = require './../../../../dist/common/bus/Bus'
-Subscriber  = require './../../../../dist/common/bus/Subscriber'
-err         = require './../../../../dist/common/err'
+Bus         = require './../../../../common/bus/Bus'
+Subscriber  = require './../../../../common/bus/Subscriber'
+err         = require './../../../../common/err'
 
 
 

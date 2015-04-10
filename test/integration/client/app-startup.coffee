@@ -2,7 +2,7 @@ _           = require 'lodash'
 chai        = require 'chai'
 sinon       = require 'sinon'
 expect      = chai.expect
-ClientApp   = require './../../../dist/client/app/ClientApp'
+ClientApp   = require './../../../client/app/ClientApp'
 MockBrowser = require('mock-browser').mocks.MockBrowser
 
 

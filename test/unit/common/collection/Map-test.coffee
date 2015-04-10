@@ -2,7 +2,7 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-Map        = require './../../../../dist/common/collection/Map'
+Map        = require './../../../../common/collection/Map'
 
 
 

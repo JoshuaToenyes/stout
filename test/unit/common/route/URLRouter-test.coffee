@@ -2,7 +2,7 @@ _            = require 'lodash'
 chai         = require 'chai'
 sinon        = require 'sinon'
 expect       = chai.expect
-URLRouter    = require './../../../../dist/common/route/URLRouter'
+URLRouter    = require './../../../../common/route/URLRouter'
 
 
 

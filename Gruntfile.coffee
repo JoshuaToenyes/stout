@@ -19,7 +19,7 @@ module.exports = (grunt) ->
         flatten: false
         cwd: 'src'
         src: ['./**/*.coffee']
-        dest: 'dist'
+        dest: ''
         ext: '.js'
       test:
         expand: true
@@ -52,7 +52,9 @@ module.exports = (grunt) ->
 
     clean:
       all: [
-        'dist',
+        'client',
+        'common',
+        'server',
         'src/**/*.js'
         'src/**/*.map'
         'test/**/*.js'

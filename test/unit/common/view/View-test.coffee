@@ -2,7 +2,7 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-View     = require './../../../../dist/common/view/View'
+View     = require './../../../../common/view/View'
 
 
 

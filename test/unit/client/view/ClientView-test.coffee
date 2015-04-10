@@ -2,8 +2,8 @@ _           = require 'lodash'
 chai        = require 'chai'
 sinon       = require 'sinon'
 expect      = chai.expect
-ClientView  = require './../../../../dist/client/view/ClientView'
-Model       = require './../../../../dist/common/model/Model'
+ClientView  = require './../../../../client/view/ClientView'
+Model       = require './../../../../common/model/Model'
 MockBrowser = require('mock-browser').mocks.MockBrowser
 
 class TestModel extends Model

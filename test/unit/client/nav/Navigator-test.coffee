@@ -2,8 +2,8 @@ _           = require 'lodash'
 chai        = require 'chai'
 sinon       = require 'sinon'
 expect      = chai.expect
-err         = require './../../../../dist/common/err'
-Navigator   = require './../../../../dist/client/nav/Navigator'
+err         = require './../../../../common/err'
+Navigator   = require './../../../../client/nav/Navigator'
 MockBrowser = require('mock-browser').mocks.MockBrowser
 
 

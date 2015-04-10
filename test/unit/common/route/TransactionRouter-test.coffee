@@ -2,10 +2,10 @@ _                 = require 'lodash'
 chai              = require 'chai'
 sinon             = require 'sinon'
 expect            = chai.expect
-err               = require './../../../../dist/common/err'
-Router            = require './../../../../dist/common/route/Router'
-TransactionRouter = require './../../../../dist/common/route/TransactionRouter'
-TransactionRoute  = require './../../../../dist/common/route/TransactionRoute'
+err               = require './../../../../common/err'
+Router            = require './../../../../common/route/Router'
+TransactionRouter = require './../../../../common/route/TransactionRouter'
+TransactionRoute  = require './../../../../common/route/TransactionRoute'
 
 
 

@@ -2,7 +2,7 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-Promise    = require './../../../../dist/common/promise/Promise'
+Promise    = require './../../../../common/promise/Promise'
 
 
 makeResolvePromise = (value) ->

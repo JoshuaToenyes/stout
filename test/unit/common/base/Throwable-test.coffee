@@ -2,7 +2,7 @@ _         = require 'lodash'
 chai      = require 'chai'
 sinon     = require 'sinon'
 expect    = chai.expect
-Throwable = require './../../../../dist/common/base/Throwable'
+Throwable = require './../../../../common/base/Throwable'
 
 
 throwThrowable = ->

@@ -2,10 +2,10 @@ _          = require 'lodash'
 chai       = require 'chai'
 sinon      = require 'sinon'
 expect     = chai.expect
-err        = require './../../../../dist/common/err'
-exc        = require './../../../../dist/common/exc'
-TopicBus   = require './../../../../dist/common/bus/TopicBus'
-TopicSubscriber = require './../../../../dist/common/bus/TopicSubscriber'
+err        = require './../../../../common/err'
+exc        = require './../../../../common/exc'
+TopicBus   = require './../../../../common/bus/TopicBus'
+TopicSubscriber = require './../../../../common/bus/TopicSubscriber'
 
 
 describe 'common/bus/TopicBus', ->
