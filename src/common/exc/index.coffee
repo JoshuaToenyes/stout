@@ -71,3 +71,12 @@ defineException 'DBConnectionException'
 # @class LimitException
 
 defineException 'LimitException'
+
+
+##
+# Thrown if attempting to access an element outside of the range of a list
+# or some other bounded countainer.
+#
+# @class IndexOutOfBoundsException
+
+defineException 'IndexOutOfBoundsException'

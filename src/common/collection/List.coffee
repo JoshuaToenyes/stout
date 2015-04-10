@@ -1,5 +1,6 @@
 
 Foundation = require './../base/Foundation'
+exc        = require './../exc'
 
 
 module.exports = class List extends Foundation
@@ -52,6 +53,22 @@ module.exports = class List extends Foundation
 
   add: (e) ->
     @_data.push e
+
+
+  ##
+  # Returns the element in the list at position `i`.
+  #
+  # @param {number} i - The index of the element to retrieve.
+  #
+  # @returns {*} The element at position `i`.
+  #
+  # @method get
+  # @public
+
+  get: (i) ->
+    if i > @length - 1 or i < 0
+      throw new exc.IndexOutOfBoundsException "Index `#{i}` out of bounds."
+    return @_data[i]
 
 
   ##
