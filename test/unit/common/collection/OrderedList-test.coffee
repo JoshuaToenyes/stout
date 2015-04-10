@@ -6,7 +6,7 @@ OrderedList = require './../../../../common/collection/OrderedList'
 
 
 
-describe.only 'common/collection/OrderedList', ->
+describe 'common/collection/OrderedList', ->
 
   l = null
 
@@ -31,7 +31,7 @@ describe.only 'common/collection/OrderedList', ->
 
 
 
-  describe '#forEach()', ->
+  describe '#each()', ->
 
     it 'iterates through elements in-order', ->
       current = 'a'

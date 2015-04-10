@@ -33,6 +33,21 @@ module.exports = class List extends Foundation
 
   ##
   # Iterates over the list, calling the passed function passing each element.
+  # This will iterate over all element of the list and there is no way to
+  # terminate early.
+  #
+  # @param {function} iterator - The iterator function.
+  #
+  # @method all
+  # @public
+
+  all: (iterator) ->
+    @_data.forEach iterator
+
+
+  ##
+  # Iterates over the list, calling the passed function passing each element.
+  # The iterator may terminate early if `false` is returned by the iterator.
   #
   # @param {function} iterator - The iterator function.
   #
@@ -40,7 +55,7 @@ module.exports = class List extends Foundation
   # @public
 
   each: (iterator) ->
-    @_data.forEach iterator
+    @_data.every iterator
 
 
   ##

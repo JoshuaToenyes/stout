@@ -77,7 +77,7 @@ module.exports = class Bus extends Observable
   publish: (message) ->
     @fire 'publish', message
     @stats.increment 'publish'
-    @_subscribers.each (sub) ->
+    @_subscribers.all (sub) ->
       sub.notify message
 
 
@@ -183,7 +183,7 @@ module.exports = class Bus extends Observable
 
   ##
   # Alias for #unsubscribe method.
-  #
+  #i
   # @see #unsubscribe
   #
   # @method unsub
@@ -206,7 +206,7 @@ module.exports = class Bus extends Observable
 
   _findMatchingSubscribers: (f) ->
     found = []
-    @_subscribers.each (sub) ->
+    @_subscribers.all (sub) ->
       if sub.compare f
         found.push sub
     return found
@@ -221,7 +221,7 @@ module.exports = class Bus extends Observable
   # @public
 
   each: (fn) ->
-    @_subscribers.each fn
+    @_subscribers.all fn
 
 
   ##
