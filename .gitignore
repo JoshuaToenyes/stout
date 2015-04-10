@@ -6,6 +6,6 @@ dist/
 test/**/*.js
 npm-debug.log
 **/*.map
-client/
-server/
-common/
+./client/
+./server/
+./common/
