@@ -2,18 +2,18 @@ _              = require 'lodash'
 chai           = require 'chai'
 sinon          = require 'sinon'
 expect         = chai.expect
-InterceptorSet = require './../../../../common/interceptor/InterceptorSet'
+MiddlewareSet  = require './../../../../common/middleware/MiddlewareSet'
 
 
 
-describe.only 'common/interceptor/InterceptorSet', ->
+describe.only 'common/middleware/MiddlewareSet', ->
 
   s1 = s2 = s3 = set = null
 
   int1 = int2 = int3 = null
 
   beforeEach ->
-    set = new InterceptorSet
+    set = new MiddlewareSet
     s1 = sinon.spy()
     s2 = sinon.spy()
     s3 = sinon.spy()

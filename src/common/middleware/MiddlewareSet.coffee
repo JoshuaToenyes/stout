@@ -9,7 +9,7 @@ OrderedList = require './../collection/OrderedList'
 # @returns {Array<*>} Inputs for the next interceptor in-series.
 
 
-module.exports = class InterceptorSet
+module.exports = class MiddlewareSet
 
   ##
   # InterceptorSet constructor.
