@@ -8,7 +8,7 @@ Route    = require './../../../../common/route/Route'
 
 describe 'common/route/Route', ->
 
-  router = null
+  route = null
   spy = null
   matchingRoutable = matches: true
   nonMatchingRoutable = matches: false
@@ -16,29 +16,29 @@ describe 'common/route/Route', ->
   beforeEach ->
     spy = sinon.spy()
     m = (a) -> return a.matches is true
-    router = new Route(m, spy)
+    route = new Route(m, spy)
 
   it 'has #test method', ->
-    expect(router).to.respondTo 'test'
+    expect(route).to.respondTo 'test'
 
   it 'has #exec method', ->
-    expect(router).to.respondTo 'exec'
+    expect(route).to.respondTo 'exec'
 
   it 'has #matcher property', ->
-    expect(router).to.have.ownProperty 'matcher'
+    expect(route).to.have.ownProperty 'matcher'
 
   it 'has #handler property', ->
-    expect(router).to.have.ownProperty 'handler'
+    expect(route).to.have.ownProperty 'handler'
 
 
 
   describe '#test', ->
 
     it 'returns true if the passed Routable matches this Route', ->
-      expect(router.test matchingRoutable).to.be.true
+      expect(route.test matchingRoutable).to.be.true
 
     it 'returns false if the passed Routable doesn\'t match', ->
-      expect(router.test nonMatchingRoutable).to.be.false
+      expect(route.test nonMatchingRoutable).to.be.false
 
 
 
@@ -46,17 +46,21 @@ describe 'common/route/Route', ->
 
     it 'calls the handler if the route matches', ->
       expect(spy.called).to.be.false
-      router.exec matchingRoutable
-      router.exec nonMatchingRoutable
+      route.exec matchingRoutable
+      route.exec nonMatchingRoutable
       expect(spy.calledOnce).to.be.true
 
     it 'passes the Routable to the matching handler', ->
-      router.exec matchingRoutable
+      route.exec matchingRoutable
       expect(spy.calledOnce).to.be.true
       expect(spy.calledWith(matchingRoutable)).to.be.true
 
     it 'returns true if the passed Routable was routed', ->
-      expect(router.exec matchingRoutable).to.be.true
+      expect(route.exec matchingRoutable).to.be.true
 
     it 'returns false if the passed Routable wasn\'t routed', ->
-      expect(router.exec nonMatchingRoutable).to.be.false
+      expect(route.exec nonMatchingRoutable).to.be.false
+
+    it 'passes additional arguments to the handler', ->
+      route.exec matchingRoutable, 1, 2, 3
+      expect(spy.calledWith matchingRoutable, 1, 2, 3).to.be.true

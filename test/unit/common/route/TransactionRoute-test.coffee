@@ -50,3 +50,7 @@ describe 'common/route/TransactionRoute', ->
       handler = -> return o
       route = new TransactionRoute(m, handler)
       expect(route.exec nonMatchingRoutable).to.equal null
+
+    it 'passes additional arguments to the handler', ->
+      route.exec matchingRoutable, 1, 2, 3
+      expect(spy.calledWith matchingRoutable, 1, 2, 3).to.be.true

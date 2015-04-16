@@ -145,3 +145,8 @@ describe 'common/route/Router', ->
       greedy.route matches: true
       expect(s1.calledOnce).to.be.true
       expect(s2.calledOnce).to.be.true
+
+    it 'passed additional arguments to the route', ->
+      q = {matches: true}
+      router.route q, 1, 2, 3
+      expect(s1.calledWith q, 1, 2, 3).to.be.true

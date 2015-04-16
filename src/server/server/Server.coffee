@@ -59,11 +59,14 @@ module.exports = class Server extends Foundation
     @_userPostMiddleware = new MiddlewareSet
 
     # The request path.
-    @_frontEnd.on 'request', (req) =>
-      @_onRequest(req.data)
+    @_frontEnd.on 'request', (e) =>
+      @_onRequest(e.data.request, e.data.response)
 
 
   ##
+  # Adds internal pre-route middleware.
+  #
+  # @param {function|Middleware} middleware - Middleware to add.
   #
   # @method _pre
   # @protected
@@ -73,6 +76,9 @@ module.exports = class Server extends Foundation
 
 
   ##
+  # Adds user pre-route middleware.
+  #
+  # @param {function|Middleware} middleware - Middleware to add.
   #
   # @method pre
   # @public
@@ -82,6 +88,9 @@ module.exports = class Server extends Foundation
 
 
   ##
+  # Convenience method for #pre().
+  #
+  # @see #pre()
   #
   # @method use
   # @public
@@ -90,6 +99,9 @@ module.exports = class Server extends Foundation
 
 
   ##
+  # Adds internal post-route middleware.
+  #
+  # @param {function|Middleware} middleware - Middleware to add.
   #
   # @method _post
   # @protected
@@ -99,6 +111,9 @@ module.exports = class Server extends Foundation
 
 
   ##
+  # Adds user post-route middleware.
+  #
+  # @param {function|Middlware} middleware - Middleware to add.
   #
   # @method post
   # @public
@@ -108,20 +123,31 @@ module.exports = class Server extends Foundation
 
 
   ##
-  # ...
+  # Handles an incoming request, via the server front-end. The request is
+  # routed first through all internal pre-route middleware, followed by
+  # user pre-route middleware. Then, it's passed to the router for routing.
+  #
   # If a piece of middleware returns an error, the request is not passed
-  # through any other middleware. If any middleware returns an error, it is
+  # through any following middleware. If an error is returned, it is
   # assumed the middleware itself handled the response appropriately, i.e.
   # responding with a `401 Unauthorized`. When this occurs, the request is said
   # to be "blocked" by the middleware and a `blocked` event is emitted.
   #
+  # Post MiddlwareSet's are set on the `Request` object so that post-route
+  # middleware can be called as appropriate.
   #
-  # @fires error - Emitted when an uncaught error occurs
+  # @param {Request} req - The incoming request object.
+  #
+  # @fires request - Fired on an incoming request.
+  #
+  # @fires error - Emitted when an uncaught error occurs.
+  #
+  # @fires blocked - Fired when a request is blocked by pre-route middleware.
   #
   # @_onRequest
   # @protected
 
-  _onRequest: (req) ->
+  _onRequest: (req, res) ->
     @fire 'request', req
     self = @
 
@@ -136,14 +162,14 @@ module.exports = class Server extends Foundation
     # Run the request sequence.
     d.run ->
       async.waterfall [
-        (cb) -> cb null, req
-        (req, cb) -> self._preMiddleware.through req, cb
-        (req, cb) -> self._userPreMiddleware.through req, cb
-      ], (er, req) ->
+        (cb) -> cb null, req, res
+        (req, res, cb) -> self._preMiddleware.through req, res, cb
+        (req, res, cb) -> self._userPreMiddleware.through req, res, cb
+      ], (er, req, res) ->
         if er
           self.fire 'blocked', {reason: er, request: req}
         else
-          self._route req
+          self._route req, res
 
 
   ##
@@ -151,8 +177,8 @@ module.exports = class Server extends Foundation
   # @method _route
   # @protected
 
-  _route: (req) ->
-    if @_router.route(req)
+  _route: (req, res) ->
+    if @_router.route(req, res)
       @fire 'route:matched', req
     else
       @fire 'route:nomatch', req

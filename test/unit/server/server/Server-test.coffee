@@ -18,7 +18,7 @@ class MockFrontend extends Foundation
 
 
 
-describe.only 'server/server/Server', ->
+describe 'server/server/Server', ->
 
   server = router = frontend = null
 
@@ -39,21 +39,21 @@ describe.only 'server/server/Server', ->
     userPreMW = sinon.spy()
     userPostMW = sinon.spy()
 
-    server._pre new Middleware (req, cb) ->
-      preMW(req)
-      cb(null, req)
+    server._pre new Middleware (req, res, cb) ->
+      preMW(req, res)
+      cb(null, req, res)
 
-    server.pre new Middleware (req, cb) ->
-      userPreMW(req)
-      cb(null, req)
+    server.pre new Middleware (req, res, cb) ->
+      userPreMW(req, res)
+      cb(null, req, res)
 
-    server._post new Middleware (req, cb) ->
-      postMW(req)
-      cb(null, req)
+    server._post new Middleware (req, res, cb) ->
+      postMW(req, res)
+      cb(null, req, res)
 
-    server.post new Middleware (req, cb) ->
-      userPostMW(req)
-      cb(null, req)
+    server.post new Middleware (req, res, cb) ->
+      userPostMW(req, res)
+      cb(null, req, res)
 
 
   beforeEach ->
@@ -78,12 +78,16 @@ describe.only 'server/server/Server', ->
   describe 'on an incoming request', ->
 
     req = {}
+    res = {}
+
+    fireRequest = (w = req, q = res) ->
+      frontend.fire 'request', {request: w, response: q}
 
     doTest = (done, fn) ->
       server.on 'route', ->
         fn()
         done()
-      frontend.fire 'request', req
+      fireRequest()
 
     it 'routes the request through internal pre-middleware', (done) ->
       doTest done, -> expect(preMW.calledOnce).to.be.true
@@ -103,44 +107,44 @@ describe.only 'server/server/Server', ->
       server.on 'request', (e) ->
         expect(e.data).to.equal req
         done()
-      frontend.fire 'request', req
+      fireRequest()
 
     it 'fires a `blocked` event if request is blocked by middleware', (done) ->
       server.on 'blocked', -> done()
-      server.use (req, next) ->
+      server.use (req, res, next) ->
         next(new Error())
-      frontend.fire 'request', req
+      fireRequest()
 
     it 'fires an `error` event for uncaught exceptions', (done) ->
       server.on 'error', -> done()
-      server.use (req, next) ->
+      server.use (req, res, next) ->
         throw new Error()
-      frontend.fire 'request', req
+      fireRequest()
 
     it 'calls the protected #_onError() for uncaught exceptions', (done) ->
       msg = 'Test Error Message'
-      server.use (req, next) -> throw new Error(msg)
+      server.use (req, res, next) -> throw new Error(msg)
       server._onError = (er, r) ->
         expect(er.message).to.equal msg
         expect(r).to.equal req
         done()
-      frontend.fire 'request', req
+      fireRequest()
 
     it 'fires a `route` event whenever a request is routed', (done) ->
       server.on 'route', -> done()
-      frontend.fire 'request', req
+      fireRequest()
 
     it 'fires a `route:matched` event if a matching route was found', (done) ->
       server.on 'route:matched', -> done()
-      frontend.fire 'request', {matches: true}
+      fireRequest({matches: true})
 
     it 'fires a `route:nomatch` event if no matching route found', (done) ->
       server.on 'route:nomatch', -> done()
-      frontend.fire 'request', {matches: false}
+      fireRequest({matches: false})
 
     it 'calls the protected #_noMatchingRoute() if no route found', (done) ->
       req = {matches: false}
       server._noMatchingRoute = (r) ->
         expect(r).to.equal req
         done()
-      frontend.fire 'request', req
+      fireRequest(req)

@@ -42,5 +42,5 @@ module.exports = class TransactionRoute extends Route
   # @method exec
   # @public
 
-  exec: (request) ->
-    return if @test(request) then @handler(request) else null
+  exec: (request, args...) ->
+    return if @test(request) then @handler(request, args...) else null

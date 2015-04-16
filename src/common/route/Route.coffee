@@ -66,7 +66,7 @@ module.exports = class Route
   # @method exec
   # @public
 
-  exec: (routable) ->
+  exec: (routable, args...) ->
     matches = @test routable
-    if matches then @handler routable
+    if matches then @handler routable, args...
     return matches

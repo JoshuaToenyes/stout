@@ -109,10 +109,10 @@ module.exports = class Router
   # @method route
   # @public
 
-  route: (routable) ->
+  route: (routable, args...) ->
     matched = false
     for r in @routes
-      matched = r.exec(routable) || matched
+      matched = r.exec(routable, args...) || matched
       if @opts.greedy and matched then return matched
     return matched
 
