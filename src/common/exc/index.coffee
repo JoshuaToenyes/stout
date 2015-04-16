@@ -80,3 +80,11 @@ defineException 'LimitException'
 # @class IndexOutOfBoundsException
 
 defineException 'IndexOutOfBoundsException'
+
+
+##
+# Thrown if attempting to iterate past the end of a list.
+#
+# @class NoSuchElementException
+
+defineException 'NoSuchElementException'

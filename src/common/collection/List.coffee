@@ -1,6 +1,7 @@
 
 Foundation = require './../base/Foundation'
 exc        = require './../exc'
+Iterator   = require './Iterator'
 
 
 module.exports = class List extends Foundation
@@ -15,6 +16,18 @@ module.exports = class List extends Foundation
     const: true
     get: ->
       return @_data.length
+
+
+  ##
+  # True if this list is empty.
+  #
+  # @property {boolean} empty
+  # @public
+  # @readonly
+
+  @property 'empty',
+    get: ->
+      return @length is 0
 
 
   ##
@@ -117,3 +130,15 @@ module.exports = class List extends Foundation
 
   contains: (e) ->
     @_data.indexOf(e) isnt -1
+
+
+  ##
+  # Returns a new iterator for this list.
+  #
+  # @returns {Iterator} Iterator for this list.
+  #
+  # @method iterator
+  # @public
+
+  iterator: ->
+    return new Iterator @

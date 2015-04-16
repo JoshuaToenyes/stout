@@ -2,6 +2,7 @@ _              = require 'lodash'
 chai           = require 'chai'
 sinon          = require 'sinon'
 expect         = chai.expect
+Middleware     = require './../../../../common/middleware/Middleware'
 MiddlewareSet  = require './../../../../common/middleware/MiddlewareSet'
 
 
@@ -18,17 +19,17 @@ describe.only 'common/middleware/MiddlewareSet', ->
     s2 = sinon.spy()
     s3 = sinon.spy()
 
-    int1 = ->
-      s1.call(arguments...)
-      return arguments
+    int1 = new Middleware (args..., cb) ->
+      s1.call(args...)
+      cb(null, args...)
 
-    int2 = ->
-      s2.call(arguments...)
-      return arguments
+    int2 = new Middleware (args..., cb) ->
+      s2.call(args...)
+      cb(null, args...)
 
-    int3 = ->
-      s3.call(arguments...)
-      return arguments
+    int3 = new Middleware (args..., cb) ->
+      s3.call(args...)
+      cb(null, args...)
 
   describe '#add()', ->
 
