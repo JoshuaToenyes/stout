@@ -12,6 +12,9 @@ class Type
       else if typeof type is 'object'
         return @_subject.constructor is type.constructor
 
+  isnt: (type) ->
+    not @is(type)
+
   name: ->
     if typeof @_subject is 'object'
       r = @_subject.constructor.toString()

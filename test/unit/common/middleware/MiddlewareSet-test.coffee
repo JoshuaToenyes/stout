@@ -7,7 +7,7 @@ MiddlewareSet  = require './../../../../common/middleware/MiddlewareSet'
 
 
 
-describe.only 'common/middleware/MiddlewareSet', ->
+describe 'common/middleware/MiddlewareSet', ->
 
   s1 = s2 = s3 = set = null
 

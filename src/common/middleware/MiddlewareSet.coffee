@@ -1,7 +1,9 @@
 
 _           = require 'lodash'
+Middleware  = require './Middleware'
 OrderedList = require './../collection/OrderedList'
-err         = require './../err'
+type        = require './../../common/utilities/type'
+err         = require './../../common/err'
 
 
 module.exports = class MiddlewareSet
@@ -24,7 +26,7 @@ module.exports = class MiddlewareSet
 
   add: (ms...) ->
     for m in ms
-      @_set.add m
+      @_set.add @_createMiddleware m
 
 
   ##
@@ -79,3 +81,22 @@ module.exports = class MiddlewareSet
 
     # Kick off the callback madness.
     callback(null, args...)
+
+
+  ##
+  # Implicitly creates a Middleware instance if passed a function. If passed
+  # an instance of the Middleware class, it is simply returned. Otherwise a
+  # TypeErr is thrown.
+  #
+  # @param {function|Middleware} fn - Function to implicitly create a
+  # Middleware instance from, or an instance of Middleware.
+  #
+  # @returns {Middleware} New or existing instance of middleware.
+  #
+  # @throws {TypeErr} Thrown if not passed a function or instance of Middleware.
+  _createMiddleware: (fn) ->
+    if fn instanceof Middleware then return fn
+    if type(fn).isnt 'function'
+      name = type(fn).name()
+      throw new err.TypeErr "Expected function or Middleware, but got #{name}."
+    return new Middleware fn
