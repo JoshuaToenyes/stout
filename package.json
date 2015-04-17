@@ -2,7 +2,7 @@
   "name": "stout",
   "description": "A solid client/server overlapping framework for building both the client and server-side of web applications.",
   "author": "Joshua Toenyes <joshua.toenyes@me.com>",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "dependencies": {
     "lodash": "2.4.x",
     "uuid": "1.4.x",
