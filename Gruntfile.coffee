@@ -95,16 +95,6 @@ module.exports = (grunt) ->
     if /grunt\-/.test pkg
       grunt.loadNpmTasks pkg
 
-
-  # grunt.loadNpmTasks 'grunt-coffeelint'
-  # grunt.loadNpmTasks 'grunt-browserify'
-  # grunt.loadNpmTasks 'grunt-contrib-coffee'
-  # grunt.loadNpmTasks 'grunt-contrib-watch'
-  # grunt.loadNpmTasks 'grunt-contrib-clean'
-  # grunt.loadNpmTasks 'grunt-mocha-test'
-  # grunt.loadNpmTasks 'grunt-contrib-connect'
-  # grunt.loadNpmTasks 'grunt-open'
-
   grunt.registerTask 'compile', [
     'coffeelint'
     'clean'
