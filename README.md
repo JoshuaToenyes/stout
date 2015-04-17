@@ -1,1 +1,3 @@
-# scaffold
+# Stout
+
+Still in development.

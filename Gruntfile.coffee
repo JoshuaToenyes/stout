@@ -4,7 +4,12 @@ module.exports = (grunt) ->
 
   config =
 
-    pkg: (grunt.file.readJSON('package.json'))
+    pkg: grunt.file.readJSON('package.json')
+
+    bump:
+      options:
+        prereleaseName: 'alpha'
+        pushTo: 'origin'
 
     coffeelint:
       options:
@@ -85,14 +90,20 @@ module.exports = (grunt) ->
 
 
   grunt.initConfig(config)
-  grunt.loadNpmTasks 'grunt-coffeelint'
-  grunt.loadNpmTasks 'grunt-browserify'
-  grunt.loadNpmTasks 'grunt-contrib-coffee'
-  grunt.loadNpmTasks 'grunt-contrib-watch'
-  grunt.loadNpmTasks 'grunt-contrib-clean'
-  grunt.loadNpmTasks 'grunt-mocha-test'
-  grunt.loadNpmTasks 'grunt-contrib-connect'
-  grunt.loadNpmTasks 'grunt-open'
+
+  for pkg of config.pkg.devDependencies
+    if /grunt\-/.test pkg
+      grunt.loadNpmTasks pkg
+
+
+  # grunt.loadNpmTasks 'grunt-coffeelint'
+  # grunt.loadNpmTasks 'grunt-browserify'
+  # grunt.loadNpmTasks 'grunt-contrib-coffee'
+  # grunt.loadNpmTasks 'grunt-contrib-watch'
+  # grunt.loadNpmTasks 'grunt-contrib-clean'
+  # grunt.loadNpmTasks 'grunt-mocha-test'
+  # grunt.loadNpmTasks 'grunt-contrib-connect'
+  # grunt.loadNpmTasks 'grunt-open'
 
   grunt.registerTask 'compile', [
     'coffeelint'
@@ -112,8 +123,5 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'test:integration', [
     'compile'
-    #'connect:server'
     'mochaTest:integration'
-    #'browserify'
-    #'open:test
   ]
