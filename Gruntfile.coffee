@@ -8,7 +8,6 @@ module.exports = (grunt) ->
 
     bump:
       options:
-        prereleaseName: 'alpha'
         pushTo: 'origin'
 
     coffeelint:
