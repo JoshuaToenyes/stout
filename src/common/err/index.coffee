@@ -77,6 +77,15 @@ defineErr 'TypeErr'
 
 
 ##
+# Throw if a passed operand or argument is of the correct type but is of an
+# inappropriate or unexpected value.
+#
+# @class ValueErr
+
+defineErr 'ValueErr'
+
+
+##
 # Thrown if an attempt is made to read a write-only attribute.
 #
 # @class IllegalReadErr

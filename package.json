@@ -7,13 +7,13 @@
     "lodash": "2.4.x",
     "uuid": "1.4.x",
     "underscore.string": "2.3.x",
-    "async": "0.9.x"
+    "async": "0.9.x",
+    "validate.js": "*"
   },
   "devDependencies": {
     "mocha": "*",
     "chai": "1.9.x",
     "sinon": "1.12.x",
-    "validate.js": "*",
     "url-parse": "1.0.x",
     "query-string": "1.0.x",
     "mock-browser": "0.90.x",

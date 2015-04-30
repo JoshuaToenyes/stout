@@ -278,12 +278,12 @@ module.exports = class Foundation extends Observable
 
     # Create the getter using the specified function, or create a default one.
     if opts.get?
-      q = opts.get
+      qg = opts.get
       opts.get = ->
         if opts.static
-          q @constructor._staticFields[name]
+          qg @constructor._staticFields[name]
         else
-          q.call @, @_fields[name]
+          qg.call @, @_fields[name]
     else
       opts.get = ->
         if opts.static
@@ -340,12 +340,12 @@ module.exports = class Foundation extends Observable
     # Define a setter which will throw an error if attempting to set a
     # constant property.
     if opts.set?
-      q = opts.set
+      qs = opts.set
       opts.set = (v) ->
         validateValue.call @, v
         if opts.const and @_constCheck
           throw constErr
-        value = q.call @, v
+        value = qs.call @, v
         if opts.static
           old = @constructor._staticFields[name]
           @constructor._staticFields[name] = value
