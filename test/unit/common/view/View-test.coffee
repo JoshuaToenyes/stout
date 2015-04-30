@@ -21,6 +21,10 @@ describe 'common/view/View', ->
   it 'has #model property', ->
     expect(v).to.have.property 'model'
 
+  it 'has #rendered property which defaults to `false`', ->
+    expect(v).to.have.property 'rendered'
+    expect(v.rendered).to.be.false
+
   it 'has #render method', ->
     expect(v).to.respondTo 'render'
 
@@ -40,6 +44,11 @@ describe 'common/view/View', ->
       onRender = -> done()
       v.on 'render', onRender
       v.render()
+
+    it 'sets the `rendered` property to true', ->
+      expect(v.rendered).to.be.false
+      v.render()
+      expect(v.rendered).to.be.true
 
 
   describe '#bind', ->

@@ -16,6 +16,14 @@ describe 'client/view/ClientView', ->
 
   m = v = s1 = null
 
+  listHTML =
+    "<ul>
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+    </ul>"
+
   beforeEach ->
     mock = new MockBrowser()
     global.document = mock.getDocument()
@@ -73,26 +81,38 @@ describe 'client/view/ClientView', ->
 
 
 
-  describe '#querySelectorEach()', ->
-
-    html =
-      "<ul>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-      </ul>"
+  describe '#select()', ->
 
     beforeEach ->
-      v = new ClientView -> html
+      v = new ClientView -> listHTML
+      v.render()
+
+    it 'returns the first matching HTMLElement', ->
+      e = v.select 'li'
+      expect(e).to.exist
+      expect(e.textContent).to.equal '1'
+      expect(e.tagName).to.equal 'LI'
+
+
+
+  describe '#selectAll()', ->
+
+    beforeEach ->
+      v = new ClientView -> listHTML
+
+    it 'returns an HTMLNodeList of the matching elements', ->
+      v.render()
+      e = v.selectAll 'li'
+      expect(e).to.exist
+      expect(e.length).to.equal 4
 
     it 'iterates the callback over each matching element', ->
       count = 0
-      v.querySelectorEach 'li', ->
+      v.selectAll 'li', ->
         count++
       expect(count).to.equal 0
       v.render()
-      v.querySelectorEach 'li', ->
+      v.selectAll 'li', ->
         count++
       expect(count).to.equal 4
 
@@ -131,3 +151,16 @@ describe 'client/view/ClientView', ->
       a = v.el.querySelector 'a'
       click(a)
       setTimeout done, 20
+
+  describe '#empty()', ->
+
+    html = '<div id="someDiv"></div>'
+
+    beforeEach ->
+      v = new ClientView -> html
+      v.render()
+
+    it 'sets the `rendered` property to `false`', ->
+      expect(v.rendered).to.be.true
+      v.empty()
+      expect(v.rendered).to.be.false

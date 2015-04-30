@@ -38,6 +38,17 @@ module.exports = class View extends Foundation
 
 
   ##
+  # Indicates if this View has already been rendered. If so, it will be `true`,
+  # otherwise `false.`
+  #
+  # @property {boolean} rendered
+  # @public
+
+  @property 'rendered',
+    default: false
+
+
+  ##
   # Sets the model.
   #
   # @constructor
@@ -57,6 +68,7 @@ module.exports = class View extends Foundation
   render: ->
     r = @template(@model)
     @fire 'render'
+    @rendered = true
     return r
 
 

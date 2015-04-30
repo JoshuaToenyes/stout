@@ -105,21 +105,45 @@ module.exports = class ClientView extends View
 
 
   ##
-  # Iterates the passed callback function over each matching element.
+  # Simple convenience method for accessing the root element's native
+  # `querySelector()` method.
   #
-  # @param {string} selector - Selector string, as used with
-  # `document.querySelector` or `document.querySelectorAll`.
+  # @param {string} selector - Native `querySelector()` style string.
   #
-  # @param {function} cb - Callback function called with the matching element
-  # as `this`.
+  # @param {function?} fn - Optional callback function called with the matching
+  # element as `this`.
   #
-  # @method querySelectorEach
+  # @returns {HTMLElement?} Matching element element.
+  #
+  # @method select
   # @public
 
-  querySelectorEach: (selector, cb) ->
-    els = @el.querySelectorAll(selector)
-    for e in els
-      cb.call e
+  select: (selector, fn) ->
+    e = @el.querySelector(selector)
+    if e and fn then fn.call e
+    e
+
+
+  ##
+  # Simple convenience method for accessing the root element's native
+  # `querySelectorAll()` method.
+  #
+  # @param {string} selector - Native `querySelectorAll()` style string.
+  #
+  # @param {function?} fn - Optional callback function called on each matching
+  # element as `this`.
+  #
+  # @returns {HTMLNodeList} Non-live NodeList matching the selector string.
+  #
+  # @method selectAll
+  # @public
+
+  selectAll: (selector, fn) ->
+    es = @el.querySelectorAll(selector)
+    if es and fn
+      for e in es
+        fn.call e
+    es
 
 
   ##
@@ -141,9 +165,17 @@ module.exports = class ClientView extends View
     return @el
 
 
+  ##
+  # Empties the client view and sets the `rendered` property to false. This
+  # essentially "unrenders" the view.
+  #
+  # @method empty
+  # @public
+
   empty: ->
     while @el.firstChild
       @el.removeChild @el.firstChild
+    @rendered = false
 
 
   ##
@@ -154,7 +186,7 @@ module.exports = class ClientView extends View
 
   _bindDefaultEvents: ->
     self = @
-    @querySelectorEach 'a:not([target])', ->
+    @selectAll 'a:not([target])', ->
       this.addEventListener 'click', (e) ->
         e.preventDefault()
         self.fire 'click:anchor', this.href
@@ -173,6 +205,6 @@ module.exports = class ClientView extends View
       selector = k.substring k.indexOf(' ') + 1
 
       # Attach the listener to the UI elements.
-      self.querySelectorEach selector, ->
+      self.selectAll selector, ->
         this.addEventListener domEvent, (e) ->
           self.fire fireEvent, e
