@@ -95,12 +95,12 @@ module.exports = class ClientView extends View
   #
   # @constructor
 
-  constructor: (template, model, @opts = {}) ->
+  constructor: (template, model, opts = {}) ->
     super template, model
     self = @
     @registerEvent 'click:anchor'
-    @opts.renderOnChange ?= true
-    if @opts.renderOnChange
+    opts.renderOnChange ?= true
+    if opts.renderOnChange
       model?.on 'change', @render, @
 
 
