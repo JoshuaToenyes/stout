@@ -1,6 +1,6 @@
 
 http         = require 'http'
-Foundation   = require './../../common/base/Foundation'
+Foundation   = require './../../../common/base/Foundation'
 HTTPRequest  = require './HTTPRequest'
 HTTPResponse = require './HTTPResponse'
 

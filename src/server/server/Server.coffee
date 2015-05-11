@@ -182,7 +182,7 @@ module.exports = class Server extends Foundation
       @fire 'route:matched', req
     else
       @fire 'route:nomatch', req
-      @_noMatchingRoute req
+      @_noMatchingRoute req, res
 
 
   ##
@@ -193,7 +193,8 @@ module.exports = class Server extends Foundation
   # @method _noMatchingRoute
   # @protected
 
-  _noMatchingRoute: (req) ->
+  _noMatchingRoute: (req, res) ->
+    res.end('Ah!!!!')
 
 
   ##
@@ -203,3 +204,4 @@ module.exports = class Server extends Foundation
   # @protected
 
   _onError: (er, req) ->
+    console.log 'got a major error: ', er

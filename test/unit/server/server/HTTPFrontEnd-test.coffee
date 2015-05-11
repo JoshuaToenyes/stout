@@ -2,12 +2,12 @@ _            = require 'lodash'
 chai         = require 'chai'
 sinon        = require 'sinon'
 expect       = chai.expect
-HTTPFrontEnd = require './../../../../server/server/HTTPFrontEnd'
+HTTPFrontEnd = require './../../../../server/server/http/HTTPFrontEnd'
 
 
 
 
-describe.only 'server/server/HTTPFrontEnd', ->
+describe 'server/server/HTTPFrontEnd', ->
 
   frontend = null
 

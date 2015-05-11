@@ -46,13 +46,18 @@ module.exports = class RegexRoute extends Route
   # string. It then calls the actual handler (specified by at instantiation)
   # with the parenthesized matches.
   #
-  # @param {string} str - Matching routed string.
+  # This method may be overridden by extending classes if additionally
+  # processing needs to be done to extract the string from the routable object.
+  #
+  # @param {string} routable - Routable string.
+  #
+  # @param {*} args... - Additional arguments passed to handler.
   #
   # @method handler
-  # @private
+  # @protected
 
-  handler: (str) ->
-    m = @parse str
+  handler: (routable, args...) ->
+    m = (@parse routable).concat args
     @_handler.apply null, m
 
   ##

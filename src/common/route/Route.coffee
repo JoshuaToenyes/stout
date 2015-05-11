@@ -60,6 +60,8 @@ module.exports = class Route
   #
   # @param {*} routable - The object to route.
   #
+  # @param {*} args... - Additional arguments to pass to route handler.
+  #
   # @returns {boolean} `true` if this route matched and the request was
   # dispatched.
   #
