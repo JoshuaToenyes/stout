@@ -113,5 +113,6 @@ module.exports = class Response extends Foundation
   #
   # @method _onError
   # @protected
-  
+
   _onError: (er, data) ->
+    throw new Error er

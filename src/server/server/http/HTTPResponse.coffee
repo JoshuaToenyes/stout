@@ -1,4 +1,4 @@
-
+_ = require 'lodash'
 Response = require './../Response'
 
 module.exports = class HTTPResponse extends Response
@@ -57,6 +57,17 @@ module.exports = class HTTPResponse extends Response
 
   send: (data = '', encoding = 'utf8') ->
     @_send data, (data, req, res) =>
+
+      if _.isString(data)
+        length = Buffer.byteLength data, encoding
+      else
+        length = data.length
+
+      if not @_res.headersSent
+        @_res.setHeader 'Content-Length', length
+        if not @_res.getHeader('Transfer-Encoding')
+          @_res.setHeader 'Transfer-Encoding', 'identity'
+
       @_res.end data, encoding
 
 
