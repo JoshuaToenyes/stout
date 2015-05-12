@@ -20,21 +20,21 @@ describe 'common/middleware/MiddlewareSet', ->
     s3 = sinon.spy()
 
     int1 = new Middleware (args..., cb) ->
-      s1.call(args...)
+      s1(args...)
       cb(null, args...)
 
     int2 = new Middleware (args..., cb) ->
-      s2.call(args...)
+      s2(args...)
       cb(null, args...)
 
     int3 = new Middleware (args..., cb) ->
-      s3.call(args...)
+      s3(args...)
       cb(null, args...)
 
   describe '#add()', ->
 
     it 'adds an interceptor to the set', ->
-      set.add int1, int2, int3
+      set.add [int1, int2, int3]
       set.through()
       expect(s1.called).to.be.true
       expect(s2.called).to.be.true
@@ -45,7 +45,7 @@ describe 'common/middleware/MiddlewareSet', ->
   describe '#remove()', ->
 
     it 'removes an interceptor from the set', ->
-      set.add int1, int2, int3
+      set.add [int1, int2, int3]
       set.remove int2
       set.through()
       expect(s1.called).to.be.true
@@ -57,9 +57,20 @@ describe 'common/middleware/MiddlewareSet', ->
   describe '#through()', ->
 
     it 'calls each of the interceptors in order', ->
-      set.add int1, int2, int3
+      set.add [int1, int2, int3]
       set.through()
       expect(s1.called).to.be.true
       expect(s2.called).to.be.true
       expect(s3.called).to.be.true
       sinon.assert.callOrder(s1, s2, s3)
+
+    it 'calls the done callback after all interceptors are called', (done) ->
+      set.add [int1, int2, int3]
+      set.through 1, 2, 3, ->
+        expect(s1.called).to.be.true
+        expect(s1.calledWith 1, 2, 3).to.be.true
+        expect(s2.called).to.be.true
+        expect(s2.calledWith 1, 2, 3).to.be.true
+        expect(s3.called).to.be.true
+        expect(s3.calledWith 1, 2, 3).to.be.true
+        done()

@@ -12,6 +12,7 @@ module.exports = class MiddlewareSet
   # MiddlewareSet constructor.
   #
   # @constructor
+  
   constructor: ->
     @_set = new OrderedList
 
@@ -19,14 +20,24 @@ module.exports = class MiddlewareSet
   ##
   # Adds a new interceptor to this set.
   #
-  # @param {Middleware|Array<Middleware>} ms - Middleware to add.
+  # @param {Middleware|Array<Middleware>|function} ms - Middleware to add.
+  # One instance of Middleware or an array of Middleware instances may be
+  # passed as this parameter and each will be added. Alternatively, a single
+  # function may be passed and it will be converted to a Middleware instance.
+  #
+  # @param {function} filter - If a plain function is passed as the first
+  # parameter, a filtering function may be passed as the second which will be
+  # used in the Middleware instance creation.
   #
   # @method add
   # @public
 
-  add: (ms...) ->
-    for m in ms
-      @_set.add @_createMiddleware m
+  add: (ms, filter) ->
+    if _.isArray ms
+      for m in ms
+        @add m
+    else
+      @_set.add @_createMiddleware ms, filter
 
 
   ##
@@ -91,12 +102,16 @@ module.exports = class MiddlewareSet
   # @param {function|Middleware} fn - Function to implicitly create a
   # Middleware instance from, or an instance of Middleware.
   #
+  # @param {function} [filter] - An optional filter function to use for the
+  # Middleware instance.
+  #
   # @returns {Middleware} New or existing instance of middleware.
   #
   # @throws {TypeErr} Thrown if not passed a function or instance of Middleware.
-  _createMiddleware: (fn) ->
+
+  _createMiddleware: (fn, filter) ->
     if fn instanceof Middleware then return fn
     if type(fn).isnt 'function'
       name = type(fn).name()
       throw new err.TypeErr "Expected function or Middleware, but got #{name}."
-    return new Middleware fn
+    return new Middleware fn, filter

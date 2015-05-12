@@ -71,8 +71,8 @@ module.exports = class Server extends Foundation
   # @method _pre
   # @protected
 
-  _pre: (middleware) ->
-    @_preMiddleware.add middleware
+  _pre: (middleware, filter) ->
+    @_preMiddleware.add middleware, filter
 
 
   ##
@@ -83,8 +83,8 @@ module.exports = class Server extends Foundation
   # @method pre
   # @public
 
-  pre: (middleware) ->
-    @_userPreMiddleware.add middleware
+  pre: (middleware, filter) ->
+    @_userPreMiddleware.add middleware, filter
 
 
   ##
@@ -106,8 +106,8 @@ module.exports = class Server extends Foundation
   # @method _post
   # @protected
 
-  _post: (middleware) ->
-    @_postMiddleware.add middleware
+  _post: (middleware, filter) ->
+    @_postMiddleware.add middleware, filter
 
 
   ##
@@ -118,8 +118,8 @@ module.exports = class Server extends Foundation
   # @method post
   # @public
 
-  post: (middleware) ->
-    @_userPostMiddleware.add middleware
+  post: (middleware, filter) ->
+    @_userPostMiddleware.add middleware, filter
 
 
   ##
@@ -148,6 +148,9 @@ module.exports = class Server extends Foundation
   # @protected
 
   _onRequest: (req, res) ->
+    res._postMiddleware = @_postMiddleware
+    res._userPostMiddleware = @_userPostMiddleware
+
     @fire 'request', req
     self = @
 
@@ -194,12 +197,12 @@ module.exports = class Server extends Foundation
   # @protected
 
   _noMatchingRoute: (req, res) ->
-    res.end('Ah!!!!')
 
 
   ##
   # No-op method which should be overriden. Called when an uncaught exception
   # occurs within the middleware, router, or handler.
+  #
   # @method _onError
   # @protected
 

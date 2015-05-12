@@ -60,9 +60,11 @@ module.exports = class HTTPFrontEnd extends Foundation
     @_http = new http.Server()
 
     @_http.on 'request', (req, res) =>
+      request = new HTTPRequest req
+      response = new HTTPResponse request, res
       @fire 'request',
-        request:  new HTTPRequest req
-        response: new HTTPResponse res
+        request:  request
+        response: response
 
     @_http.on 'close', (req, res) =>
       @fire 'close'
