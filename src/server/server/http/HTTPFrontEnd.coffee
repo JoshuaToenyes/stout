@@ -77,6 +77,9 @@ module.exports = class HTTPFrontEnd extends Foundation
     @_http.on 'listening', =>
       @fire 'listening'
 
+    # @_http.on 'upgrade', ->
+    #   console.log 'upgrade!'
+
 
   ##
   # Starts the server listening for incoming connections on the configured

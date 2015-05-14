@@ -102,12 +102,13 @@ module.exports = class StaticController extends HTTPController
       # respond with a `304`.
       (stats, cb) ->
         etag = self._etag stats.mtime.toString()
+        res.headers.etag = etag
+        res.headers.maxAge = 60
+        res.headers.expires = new Date(_.now() + 60 * 1000)
         if req.headers['if-none-match'] and req.headers['if-none-match'] is etag
           res.notModified()
           cb(null, false)
         else
-          res.headers.etag = etag
-          res.headers.maxAge = 60
           cb(null, true)
 
       # `sendFile` will be true if we did not respond with a 304... so the file

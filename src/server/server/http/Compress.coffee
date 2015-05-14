@@ -31,7 +31,12 @@ module.exports = class HTTPCompress extends Middleware
     fn = (er, data) ->
       cb(er, data, req, res)
 
-    if acceptEncoding.match /\bdeflate\b/
+    # Don't compress anything if there's no data to be compressed. Doing-so
+    # will actually create non-zero-length data and lead to a response body.
+    if not data
+      cb(null, data, req, res)
+
+    else if acceptEncoding.match /\bdeflate\b/
       res.headers.contentEncoding = 'deflate'
       res.headers.transferEncoding = 'deflate'
       zlib.deflate data, fn

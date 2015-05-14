@@ -61,10 +61,18 @@ module.exports = class Headers extends Foundation
 
 
   ##
+  # The expires header for this response.
+
+  @property 'expires',
+    set: (d) -> if d then @set 'Expires', d.toUTCString()
+    get: -> @get 'Expires'
+
+
+  ##
   # The maximum age of this response.
 
   @property 'maxAge',
-    set: (m) -> @set 'Cache-Control', "max-age=#{m}"
+    set: (m) -> if m then @set 'Cache-Control', "public, max-age=#{m}"
     get: -> @get 'Cache-Control'
 
 
