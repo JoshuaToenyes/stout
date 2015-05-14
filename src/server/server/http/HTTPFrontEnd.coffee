@@ -47,6 +47,10 @@ module.exports = class HTTPFrontEnd extends Foundation
     default: 500
 
 
+  @property 'responseOptions',
+    default: {}
+
+
   ##
   # Creates and returns a new HTTPFrontEnd server front-end.
   #
@@ -60,8 +64,9 @@ module.exports = class HTTPFrontEnd extends Foundation
     @_http = new http.Server()
 
     @_http.on 'request', (req, res) =>
+
       request = new HTTPRequest req
-      response = new HTTPResponse request, res
+      response = new HTTPResponse request, res, @responseOptions
       @fire 'request',
         request:  request
         response: response

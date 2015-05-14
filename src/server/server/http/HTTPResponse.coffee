@@ -1,7 +1,7 @@
 _ = require 'lodash'
+http = require 'http'
 Response = require './../Response'
 Headers  = require './Headers'
-
 
 
 module.exports = class HTTPResponse extends Response
@@ -13,9 +13,27 @@ module.exports = class HTTPResponse extends Response
   #
   # @param {http.ServerResponse} _res - The raw Node.JS response object.
   #
+  # @param {object} [opts] - Options object.
+  #
+  # @param {string} [opts.errorContent] - Error page content, indexed by status
+  # code.
+  #
+  # @param {string} [opts.defaultErrorMIME='text/plain'] - Default MIME type
+  # for error responses.
+  #
+  # @param {string} [opts.errorMIMEs] - Status-code keyed set of mime types for
+  # overriding the default error mime type on a per-code basis.
+  #
   # @constructor
 
-  constructor: (req, @_res) ->
+  constructor: (req, @_res, @_opts = {}) ->
+
+    @_opts.errorContent ?= {}
+
+    @_opts.defaultErrorMIME ?= 'text/plain'
+
+    @_opts.errorMIMEs ?= {}
+
     @headers = new Headers @_res
     super req
 
@@ -63,24 +81,34 @@ module.exports = class HTTPResponse extends Response
 
   ##
   # Sends a 404 response.
-  notFound: ->
-    @headers.connection = 'close'
-    @headers.code = 404
-    @send()
+  notFound: (data, mime) ->
+    @_send4xx 404, data, mime
 
 
   ##
   # Sends a 304 response.
-  notModified: ->
+  notModified: (data, mime) ->
     @headers.code = 304
-    @send()
+    @send(data)
 
 
-  
-  methodNotAllowed: ->
+
+  methodNotAllowed: (data, mime) ->
+    @_send4xx 405, data, mime
+
+
+  internalServerError: (data, mime) ->
+    @_send5xx 500, data, mime
+
+
+  _send4xx: (code, data, mime) ->
     @headers.connection = 'close'
-    @headers.code = 405
-    @send()
+    @headers.code = code
+    @headers.mime = mime or @_opts.errorMIMEs[code] or @_opts.defaultErrorMIME
+    @send(data or @_opts.errorContent[code] or http.STATUS_CODES[code])
+
+
+  _send5xx: @.prototype._send4xx
 
 
   ##

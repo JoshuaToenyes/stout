@@ -184,6 +184,6 @@ module.exports = class Server extends Foundation
 
   _route: (req, res) ->
     if @_router.route(req, res)
-      @fire 'route:matched', req
+      @fire 'route:matched', {request: req, response: res}
     else
-      @fire 'route:nomatch', req
+      @fire 'route:nomatch', {request: req, response: res}

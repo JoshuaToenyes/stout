@@ -32,6 +32,21 @@ module.exports = class HTTPServer extends Server
       return @_frontend.port
 
 
+  @property 'errorContent',
+    default: {}
+    set: (c) -> @_frontend.responseOptions.errorContent = c
+
+
+  @property 'defaultErrorMIME',
+    default: {}
+    set: (c) -> @_frontend.responseOptions.defaultErrorMIME = c
+
+
+  @property 'errorMIMEs',
+    default: {}
+    set: (c) -> @_frontend.responseOptions.errorMIMEs = c
+
+
   ##
   # HTTPServer constructor.
   #
@@ -50,9 +65,13 @@ module.exports = class HTTPServer extends Server
     # If the routes property changes, update the routes.
     @on 'change:routes', @_updateRoutes, @
 
+    @on 'error', (e) ->
+      e.data.response.internalServerError()
+
     # @on 'route:matched', (e) ->
-    #
-    # @on 'route:nomatch', (e) ->
+
+    @on 'route:nomatch', (e) ->
+      e.data.response.notFound()
 
 
   ##
