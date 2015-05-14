@@ -2,6 +2,7 @@
 # Defines the Route class.
 
 URLPathRoute   = require './../../../common/route/URLPathRoute'
+HTTPController = require './HTTPController'
 
 
 ##
@@ -31,6 +32,13 @@ module.exports = class HTTPRequestRoute extends URLPathRoute
   test: (req) ->
     @matcher req.url.path
 
-
+  ##
+  # @override
   handler: (req, res) ->
-    super req.url.path, req, res
+    m = (@parse req.url.path).concat [req, res]
+
+    if @_handler instanceof HTTPController
+      fn = @_handler[req.method] or @_handler.get
+      fn.apply null, m
+    else
+      @_handler.apply null, m

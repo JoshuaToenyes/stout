@@ -32,15 +32,13 @@ module.exports = class HTTPCompress extends Middleware
       cb(er, data, req, res)
 
     if acceptEncoding.match /\bdeflate\b/
-      if not res.headersSent
-        res.setHeader 'Content-Encoding', 'deflate'
-        res.setHeader 'Transfer-Encoding', 'deflate'
+      res.headers.contentEncoding = 'deflate'
+      res.headers.transferEncoding = 'deflate'
       zlib.deflate data, fn
 
     else if acceptEncoding.match /\bgzip\b/
-      if not res.headersSent
-        res.setHeader 'Content-Encoding', 'gzip'
-        res.setHeader 'Transfer-Encoding', 'gzip'
+      res.headers.contentEncoding = 'gzip'
+      res.headers.transferEncoding = 'gzip'
       zlib.gzip data, fn
 
     else

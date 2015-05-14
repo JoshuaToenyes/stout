@@ -50,14 +50,11 @@ module.exports = class HTTPServer extends Server
     # If the routes property changes, update the routes.
     @on 'change:routes', @_updateRoutes, @
 
-    @_frontend.on 'request', ->
-      console.log 'got a request!'
-
-    @on 'route:matched', (e) ->
-      console.log 'routing match!...'
-
-    @on 'route:nomatch', (e) ->
-      console.log 'no match!'
+    # @_frontend.on 'request', -> 
+    #
+    # @on 'route:matched', (e) ->
+    #
+    # @on 'route:nomatch', (e) ->
 
 
   ##

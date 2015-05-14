@@ -159,8 +159,7 @@ module.exports = class Server extends Foundation
 
     # If an error occurs, fire the error event and request context.
     d.on 'error', (er) ->
-      self.fire 'error', {error: er, request: req}
-      self._onError er, req
+      self.fire 'error', {error: er, request: req, response: res}
 
     # Run the request sequence.
     d.run ->
@@ -185,26 +184,3 @@ module.exports = class Server extends Foundation
       @fire 'route:matched', req
     else
       @fire 'route:nomatch', req
-      @_noMatchingRoute req, res
-
-
-  ##
-  # No-op method which should be overridden. Called when there is no matching
-  # route for an incomming request. An HTTP server could implement this to
-  # respond with a 404.
-  #
-  # @method _noMatchingRoute
-  # @protected
-
-  _noMatchingRoute: (req, res) ->
-
-
-  ##
-  # No-op method which should be overriden. Called when an uncaught exception
-  # occurs within the middleware, router, or handler.
-  #
-  # @method _onError
-  # @protected
-
-  _onError: (er, req) ->
-    console.log 'got a major error: ', er

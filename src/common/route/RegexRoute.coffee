@@ -25,7 +25,7 @@ module.exports = class RegexRoute extends Route
   # The handler function to call with a matching incoming route.
   #
   # @member {function} _handler
-  # @private
+  # @protected
 
   ##
   # Route constructor.
@@ -86,7 +86,7 @@ module.exports = class RegexRoute extends Route
   # @returns {Array<string>} Array of parenthesized substring matches.
   #
   # @method parse
-  # @private
+  # @protected
 
   parse: (str) ->
     m = @regex.exec str

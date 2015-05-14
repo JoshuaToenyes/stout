@@ -8,7 +8,7 @@ module.exports = class HTTPRequest extends Request
     get: -> url.parse(@_req.url)
 
   @property 'method',
-    get: -> @_req.method
+    get: -> @_req.method.toLowerCase()
 
   @property 'headers',
     get: -> @_req.headers

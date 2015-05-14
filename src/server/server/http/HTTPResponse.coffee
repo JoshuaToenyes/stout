@@ -1,18 +1,10 @@
 _ = require 'lodash'
 Response = require './../Response'
+Headers  = require './Headers'
+
+
 
 module.exports = class HTTPResponse extends Response
-
-  ##
-  # Simple boolean property indicating if the headers have already been sent
-  # for this response.
-  #
-  # @property headersSent
-  # @public
-
-  @property 'headersSent',
-    get: -> @_res.headersSent
-
 
   ##
   # HTTPResponse constructor.
@@ -24,29 +16,14 @@ module.exports = class HTTPResponse extends Response
   # @constructor
 
   constructor: (req, @_res) ->
+    @headers = new Headers @_res
     super req
-
-
-  ##
-  # Sets the header to the specified value. Should only be used before the
-  # headers are sent.
-  #
-  # @param {string} header - The header to set.
-  #
-  # @param {string|Array<string>} value - The value to set the header to, or
-  # an array of string values to set the header to.
-  #
-  # @method setHeader
-  # @public
-
-  setHeader: (header, value) ->
-    @_res.setHeader header, value
 
 
   ##
   # Sends a response to the client and ends this connection.
   #
-  # @param {string|Buffer} data - The data to send to the client.
+  # @param {string|Buffer} [data] - The data to send to the client.
   #
   # @param {string} [encoding='utf8'] - The encoding of the `data` parameter
   # if it is a string.
@@ -55,20 +32,55 @@ module.exports = class HTTPResponse extends Response
   # @override
   # @public
 
-  send: (data = '', encoding = 'utf8') ->
+  send: (data, encoding = 'utf8') ->
+
+    # Send the response through all the post-middleware. When that is done,
+    # the callback function will be executed, assuming no post-middleware
+    # terminated the request early.
     @_send data, (data, req, res) =>
 
-      if _.isString(data)
-        length = Buffer.byteLength data, encoding
-      else
-        length = data.length
+      # If we are sending data in the response, try to calculate its length.
+      if data
 
-      if not @_res.headersSent
-        @_res.setHeader 'Content-Length', length
-        if not @_res.getHeader('Transfer-Encoding')
-          @_res.setHeader 'Transfer-Encoding', 'identity'
+        # If the response is a string, calculate the byte-length.
+        if _.isString(data)
+          length = Buffer.byteLength data, encoding
 
+        # If the response is a buffer, set the length to the buffer's length.
+        else if data instanceof Buffer
+          length = data.length
+
+        # If not a string or a Buffer, something is wrong here...
+        else
+          throw new Error 'Cannot calculate response length.'
+
+        if length then @headers.contentLength = length
+
+      # Write out the headers and response.
+      @headers.write()
       @_res.end data, encoding
+
+
+  ##
+  # Sends a 404 response.
+  notFound: ->
+    @headers.connection = 'close'
+    @headers.code = 404
+    @send()
+
+
+  ##
+  # Sends a 304 response.
+  notModified: ->
+    @headers.code = 304
+    @send()
+
+
+  
+  methodNotAllowed: ->
+    @headers.connection = 'close'
+    @headers.code = 405
+    @send()
 
 
   ##

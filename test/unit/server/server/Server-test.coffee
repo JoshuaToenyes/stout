@@ -121,15 +121,6 @@ describe 'server/server/Server', ->
         throw new Error()
       fireRequest()
 
-    it 'calls the protected #_onError() for uncaught exceptions', (done) ->
-      msg = 'Test Error Message'
-      server.use (req, res, next) -> throw new Error(msg)
-      server._onError = (er, r) ->
-        expect(er.message).to.equal msg
-        expect(r).to.equal req
-        done()
-      fireRequest()
-
     it 'fires a `route` event whenever a request is routed', (done) ->
       server.on 'route', -> done()
       fireRequest()
@@ -141,10 +132,3 @@ describe 'server/server/Server', ->
     it 'fires a `route:nomatch` event if no matching route found', (done) ->
       server.on 'route:nomatch', -> done()
       fireRequest({matches: false})
-
-    it 'calls the protected #_noMatchingRoute() if no route found', (done) ->
-      req = {matches: false}
-      server._noMatchingRoute = (r) ->
-        expect(r).to.equal req
-        done()
-      fireRequest(req)
