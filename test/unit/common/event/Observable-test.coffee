@@ -62,22 +62,22 @@ describe 'common/event/Observable', ->
       _.each es, (e) ->
         o.registerEvent e
       _.each es, (e) ->
-        expect(o.registered e).to.be.true
-      expect(o.registered 'fake').to.be.false
+        expect(o.eventRegistered e).to.be.true
+      expect(o.eventRegistered 'fake').to.be.false
 
     it 'registers arrays of events', ->
       _.each es, (e) ->
-        expect(o.registered e).to.be.false
+        expect(o.eventRegistered e).to.be.false
       o.registerEvent es
       _.each es, (e) ->
-        expect(o.registered e).to.be.true
+        expect(o.eventRegistered e).to.be.true
 
     it 'registers the values of plain objects as events', ->
       _.each eo, (e) ->
-        expect(o.registered e).to.be.false
+        expect(o.eventRegistered e).to.be.false
       o.registerEvent eo
       _.each eo, (e) ->
-        expect(o.registered e).to.be.true
+        expect(o.eventRegistered e).to.be.true
 
     it 'throws an IllegalArgumentErr for invalid event names', ->
       fn = -> o.registerEvent ''
@@ -100,24 +100,24 @@ describe 'common/event/Observable', ->
       o = new Observable(es)
 
     it 'deregisters the passed event', ->
-      expect(o.registered 'eventa').to.be.true
+      expect(o.eventRegistered 'eventa').to.be.true
       o.deregisterEvent 'eventa'
-      expect(o.registered 'eventa').to.be.false
+      expect(o.eventRegistered 'eventa').to.be.false
 
     it 'deregisters arrays of passed events', ->
       _.each es, (e) ->
-        expect(o.registered e).to.be.true
+        expect(o.eventRegistered e).to.be.true
       o.deregisterEvent es
       _.each es, (e) ->
-        expect(o.registered e).to.be.false
+        expect(o.eventRegistered e).to.be.false
 
     it 'deregisters plain objects of passed events', ->
       q = EVTA: 'eventa', EVTB: 'eventb'
       _.each q, (e) ->
-        expect(o.registered e).to.be.true
+        expect(o.eventRegistered e).to.be.true
       o.deregisterEvent q
       _.each es, (e) ->
-        expect(o.registered e).to.be.false
+        expect(o.eventRegistered e).to.be.false
 
     it 'throws an IllegalArgumentErr for invalid event names', ->
       fn = -> o.deregisterEvent ''
@@ -141,18 +141,18 @@ describe 'common/event/Observable', ->
       o = new Observable()
 
     it 'returns false for event names that are not registered', ->
-      expect(o.registered 'fake').to.be.false
-      expect(o.registered 'notreal').to.be.false
+      expect(o.eventRegistered 'fake').to.be.false
+      expect(o.eventRegistered 'notreal').to.be.false
 
     it 'returns false for non-string event names', ->
-      expect(o.registered()).to.be.false
-      expect(o.registered null).to.be.false
-      expect(o.registered undefined).to.be.false
+      expect(o.eventRegistered()).to.be.false
+      expect(o.eventRegistered null).to.be.false
+      expect(o.eventRegistered undefined).to.be.false
 
     it 'returns true for registered event names', ->
       o.registerEvent es
-      expect(o.registered 'eventa').to.be.true
-      expect(o.registered 'eventb').to.be.true
+      expect(o.eventRegistered 'eventa').to.be.true
+      expect(o.eventRegistered 'eventb').to.be.true
 
 
   describe '#events', ->

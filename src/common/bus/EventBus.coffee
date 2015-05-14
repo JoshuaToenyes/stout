@@ -101,6 +101,6 @@ module.exports = class EventBus extends Bus
         q = q && @plugged o, event
       return q
     else
-      if not ob.registered event then return false
+      if not ob.eventRegistered event then return false
       if ob.attached 'event', @publish then return true
       return ob.attached event, @publish

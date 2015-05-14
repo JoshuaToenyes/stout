@@ -76,7 +76,7 @@ module.exports = class ClientView extends View
       # Register each event on this view, if not already registered.
       self = @
       _.forEach es, (event, specifier) ->
-        self.registerEvent(event) unless self.registered(event)
+        self.registerEvent(event) unless self.eventRegistered(event)
 
 
   ##

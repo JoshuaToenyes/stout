@@ -451,7 +451,7 @@ module.exports = class Observable
   # @method registered
   # @public
 
-  registered: (e) ->
+  eventRegistered: (e) ->
     @_events[e]?
 
 

@@ -56,7 +56,7 @@ describe 'client/view/ClientView', ->
       expect(v.el.nodeName).to.equal 'DIV'
 
     it 'registers the `click:anchor` event', ->
-      expect(v.registered 'click').to.be.true
+      expect(v.eventRegistered 'click').to.be.true
 
     it 'automatically re-renders the view when the model changes', ->
       f = (model) ->
