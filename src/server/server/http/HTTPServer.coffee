@@ -50,8 +50,6 @@ module.exports = class HTTPServer extends Server
     # If the routes property changes, update the routes.
     @on 'change:routes', @_updateRoutes, @
 
-    # @_frontend.on 'request', -> 
-    #
     # @on 'route:matched', (e) ->
     #
     # @on 'route:nomatch', (e) ->
@@ -72,6 +70,7 @@ module.exports = class HTTPServer extends Server
   #
   # @method stop
   # @public
+
   stop: ->
     @_frontend.close()
 

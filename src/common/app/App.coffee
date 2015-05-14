@@ -70,29 +70,3 @@ module.exports = class App extends Controller
 
     # Extend the Controller class.
     super messageBus, eventBus, transactionRouter
-
-    ##
-    # The router is responsible for notifying URL route handlers when the URL
-    # changes. The navigator watches for changes to the URL, which then notifies
-    # the router, who routes the URL to the appropriate handler.
-    #
-    # @property router
-    # @public
-
-    @router = new URLRouter greedy: true
-
-    # If the defined routes change, update the router with the new routes.
-    @on 'change:routes', @_updateRoutes, @
-
-
-  ##
-  # Updates all the app's routes by clearing the old routes and re-adding each
-  # route.
-  #
-  # @method updateRoutes
-  # @private
-
-  _updateRoutes: ->
-    @router.clear()
-    for route, handler of @routes
-      @router.add route, handler

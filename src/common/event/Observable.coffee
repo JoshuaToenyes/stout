@@ -605,3 +605,23 @@ module.exports = class Observable
         while i--
           @off(e, @_events[e].listeners[i].fn)
     return
+
+
+  ##
+  # Proxies `events` on the passed `target` Observable. In other words, this
+  # object will re-fire the specified events that are fired by `target`.
+  #
+  # @param {Observable} target - The object on-which to proxy events.
+  #
+  # @param {EventSpecifier} event - The event to proxy.
+  #
+  # @param {string} rename - The new
+  #
+  proxy: (target, events..., rename) ->
+    for e in events
+      if _.isArray e
+        @proxy.apply @, target, e, rename
+      else
+        ename = rename or e
+        @target.on e, (evt) =>
+          @fire ename, evt.data

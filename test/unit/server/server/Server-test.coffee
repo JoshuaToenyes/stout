@@ -7,6 +7,8 @@ Route       = require './../../../../common/route/Route'
 Foundation  = require './../../../../common/base/Foundation'
 Server      = require './../../../../server/server/Server'
 Middleware  = require './../../../../common/middleware/Middleware'
+Request     = require './../../../../server/server/Request'
+Response    = require './../../../../server/server/Response'
 
 
 
@@ -77,8 +79,8 @@ describe 'server/server/Server', ->
 
   describe 'on an incoming request', ->
 
-    req = {}
-    res = {}
+    req = new Request
+    res = new Response
 
     fireRequest = (w = req, q = res) ->
       frontend.fire 'request', {request: w, response: q}

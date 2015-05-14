@@ -13,5 +13,8 @@ module.exports = class HTTPRequest extends Request
   @property 'headers',
     get: -> @_req.headers
 
+  @property 'rawHeaders',
+    get: -> @_req.rawHeaders
+
   constructor: (@_req) ->
     super()

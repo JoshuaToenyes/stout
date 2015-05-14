@@ -5,8 +5,8 @@ Controller = require './../../../common/controller/Controller'
 
 module.exports = class HTTPController extends Controller
 
-  constructor: ->
-    super()
+  constructor: (parent) ->
+    super parent
 
   _notAllowed: (args..., req, res) ->
     res.methodNotAllowed()

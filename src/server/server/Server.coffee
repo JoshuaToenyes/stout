@@ -26,7 +26,7 @@ module.exports = class Server extends Foundation
   constructor: (@_frontEnd, @_router) ->
     super()
 
-    @registerEvents 'request route error blocked'
+    @registerEvents 'request response route error blocked'
 
     # Internal middleware to run before the request is routed
     # and before any user middleware.
@@ -153,6 +153,9 @@ module.exports = class Server extends Foundation
 
     @fire 'request', req
     self = @
+
+    res.on 'sent', =>
+      @fire 'response', res
 
     # Create an error domain
     d = domain.create()

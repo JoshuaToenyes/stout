@@ -43,7 +43,7 @@ module.exports = class Response extends Foundation
 
   constructor: (@_req) ->
     super()
-    @registerEvents 'error blocked'
+    @registerEvents 'error blocked sent'
     @_postMiddleware = null
     @_userPostMiddleware = null
 
@@ -74,6 +74,10 @@ module.exports = class Response extends Foundation
   #
   # @param {function} done - Callback function.
   #
+  # @todo I can see problems if "post" middleware try to send a response... it
+  # will definitely trigger an infinite recursion, as they will continually
+  # call themselves.
+  #
   # @method _send
   # @private
 
@@ -101,6 +105,7 @@ module.exports = class Response extends Foundation
           self.fire 'blocked', {reason: er, request: req, data: data}
         else
           done? data, req, res
+          self.fire 'sent', @
 
 
   ##

@@ -57,6 +57,7 @@ module.exports = class Headers extends Foundation
 
   @property 'etag',
     set: (m) -> @set 'ETag', m
+    get: -> @get 'ETag'
 
 
   ##
@@ -64,6 +65,7 @@ module.exports = class Headers extends Foundation
 
   @property 'maxAge',
     set: (m) -> @set 'Cache-Control', "max-age=#{m}"
+    get: -> @get 'Cache-Control'
 
 
   ##
@@ -74,6 +76,7 @@ module.exports = class Headers extends Foundation
 
   @property 'transferEncoding',
     set: (c) -> @set 'Transfer-Encoding', c
+    get: -> @get 'Transfer-Encoding'
     default: 'identity'
 
 
@@ -85,6 +88,7 @@ module.exports = class Headers extends Foundation
 
   @property 'contentEncoding',
     set: (c) -> @set 'Content-Encoding', c
+    get: -> @get 'Content-Encoding'
 
 
   ##

@@ -27,6 +27,19 @@ module.exports = class ClientApp extends App
     super 'log nav'
 
     ##
+    # The router is responsible for notifying URL route handlers when the URL
+    # changes. The navigator watches for changes to the URL, which then notifies
+    # the router, who routes the URL to the appropriate handler.
+    #
+    # @property router
+    # @public
+
+    @router = new URLRouter greedy: true
+
+    # If the defined routes change, update the router with the new routes.
+    @on 'change:routes', @_updateRoutes, @
+
+    ##
     # The navigator is responsible for listening-for and handling URL changes,
     # and changing the URL as appropriate during application execution so users
     # can returns to a specific place in the app based on a bookmarked, or
@@ -45,3 +58,16 @@ module.exports = class ClientApp extends App
     # Subscribe to navigation events.
     @messageBus.subscribe 'nav:goto', (url) => @navigator.goto url
     @messageBus.subscribe 'nav:back', (url) => @navigator.back()
+
+
+  ##
+  # Updates all the app's routes by clearing the old routes and re-adding each
+  # route.
+  #
+  # @method updateRoutes
+  # @private
+
+  _updateRoutes: ->
+    @router.clear()
+    for route, handler of @routes
+      @router.add route, handler
