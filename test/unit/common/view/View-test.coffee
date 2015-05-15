@@ -36,9 +36,9 @@ describe 'common/view/View', ->
       v.model = m
       v.template = spy
 
-    it 'calls the template function, passing the model', ->
+    it 'calls the template function', ->
       v.render()
-      expect(spy.calledWith m).to.be.true
+      expect(spy.calledOnce).to.be.true
 
     it 'fires a `render` event', (done) ->
       onRender = -> done()

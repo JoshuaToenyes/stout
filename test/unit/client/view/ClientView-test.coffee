@@ -9,6 +9,7 @@ MockBrowser = require('mock-browser').mocks.MockBrowser
 class TestModel extends Model
   @property 'first'
   @property 'last'
+  constructor: -> super arguments...
 
 
 
@@ -59,9 +60,9 @@ describe 'client/view/ClientView', ->
       expect(v.eventRegistered 'click').to.be.true
 
     it 'automatically re-renders the view when the model changes', ->
-      f = (model) ->
-        expect(model.first).to.equal m.first
-        expect(model.last).to.equal m.last
+      f = (t) ->
+        expect(t.model.first).to.equal m.first
+        expect(t.model.last).to.equal m.last
       v = new ClientView f, m
       v.render()
       v.on 'render', s1

@@ -48,6 +48,7 @@ module.exports = class ClientView extends View
   # @public
 
   @property 'el',
+    serializable: false
     get: (el) ->
       if el is null
         el = document.createElement @tagName
@@ -71,7 +72,8 @@ module.exports = class ClientView extends View
   # @public
 
   @property 'events',
-    default: {},
+    default: {}
+    serializable: false
     set: (es) ->
       # Register each event on this view, if not already registered.
       self = @

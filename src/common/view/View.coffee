@@ -26,7 +26,8 @@ module.exports = class View extends Foundation
   # @property {function} template
   # @protected
 
-  @property 'template'
+  @property 'template',
+    serializable: false
 
 
   ##
@@ -47,6 +48,7 @@ module.exports = class View extends Foundation
 
   @property 'rendered',
     default: false
+    serializable: false
 
 
   ##
@@ -67,7 +69,7 @@ module.exports = class View extends Foundation
   # @public
 
   render: ->
-    r = @template(@model)
+    r = @template(@objectify())
     @fire 'render'
     @rendered = true
     return r

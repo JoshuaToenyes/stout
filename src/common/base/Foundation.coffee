@@ -133,7 +133,10 @@ module.exports = class Foundation extends Observable
     for name, options of @constructor._fieldOpts
       if !options.serializable then continue
       n = if options.alias != null then options.alias else name
-      objectifyd[n] = _.cloneDeep(@_fields[name])
+      if @_fields[name] instanceof Foundation
+        objectifyd[n] = @_fields[name].objectify()
+      else
+        objectifyd[n] = _.cloneDeep(@_fields[name])
     objectifyd
 
 
