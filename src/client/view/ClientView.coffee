@@ -89,14 +89,17 @@ module.exports = class ClientView extends View
   #
   # @param {Object} [opts={}] - Options object.
   #
+  # @param {Object} [init={}] - Initiation params forwarded to root Foundation
+  # parent class.
+  #
   # @param {boolean} [opts.renderOnChange=true] - Option to prevent
   # automatically rendering the view on a model change event. Set to `false` if
   # manual rendering is desired.
   #
   # @constructor
 
-  constructor: (template, model, opts = {}) ->
-    super template, model
+  constructor: (template, model, opts = {}, init = {}) ->
+    super template, model, init
     self = @
     @registerEvent 'click:anchor'
     opts.renderOnChange ?= true

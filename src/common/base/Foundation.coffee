@@ -6,10 +6,11 @@
 #
 # @requires lodash
 
-_          = require 'lodash'
-errors     = require './../err'
-utilities  = require './../utilities'
-Observable = require './../event/Observable'
+_           = require 'lodash'
+errors      = require './../err'
+utilities   = require './../utilities'
+Observable  = require './../event/Observable'
+ValueStream = require './ValueStream'
 
 
 ##
@@ -67,7 +68,7 @@ module.exports = class Foundation extends Observable
   # @param {Object<string, *>} props Initial assignments of instance properties.
 
   constructor: (props = {}) ->
-    super 'change'
+    super 'change set'
 
     # Create the `_fields` member.
     @_fields = {}
@@ -146,6 +147,22 @@ module.exports = class Foundation extends Observable
 
   jsonify: ->
     JSON.stringify @objectify()
+
+
+  ##
+  #
+  #
+  # @todo Add `destroy` event to Foundation class, or maybe Observable class.
+
+  stream: (prop, fn) ->
+    vs = new ValueStream fn
+    e = "change:#{prop}"
+    f = (e) ->
+      vs.push e.data.value
+    @on e, f
+    vs.on 'destroy', =>
+      @off e, fn
+    vs
 
 
   ##
@@ -315,8 +332,7 @@ module.exports = class Foundation extends Observable
     # specified.
     validateValue = (v) ->
       if opts.values
-        e = new errors.IllegalArgumentErr(
-          "Illegal value for property #{name}.")
+        e = new errors.IllegalArgumentErr "Illegal value for property #{name}."
         if _.isArray(opts.values) and !(v in opts.values)
           throw e
         else if _.isFunction(opts.values) and !opts.values(v)
@@ -335,36 +351,24 @@ module.exports = class Foundation extends Observable
             throw new errors.TypeErr(
               "Property `#{name}` must be instance of #{fn}.")
 
-    constErr = new errors.ConstErr "Field `#{name}` is a constant."
-
     # Define a setter which will throw an error if attempting to set a
     # constant property.
-    if opts.set?
-      qs = opts.set
-      opts.set = (v) ->
-        validateValue.call @, v
-        if opts.const and @_constCheck
-          throw constErr
-        value = qs.call @, v
-        if opts.static
-          old = @constructor._staticFields[name]
-          @constructor._staticFields[name] = value
-        else
-          old = @_fields[name]
-          @_fields[name] = value
-        @fire "change:#{name}", value: value, old: old, property: name
-    else
-      opts.set ?= (v) ->
-        validateValue.call @, v
-        if opts.const and @_constCheck
-          throw constErr
-        if opts.static
-          old = @constructor._staticFields[name]
-          @constructor._staticFields[name] = v
-        else
-          old = @_fields[name]
-          @_fields[name] = v
-        @fire "change:#{name}", value: v, old: old, property: name
+    qs = opts.set
+
+    opts.set = (v) ->
+      validateValue.call @, v
+      if opts.const and @_constCheck
+        throw new errors.ConstErr "Field `#{name}` is a constant."
+      if qs then v = qs.call @, v
+      if opts.static
+        old = @constructor._staticFields[name]
+        @constructor._staticFields[name] = v
+      else
+        old = @_fields[name]
+        @_fields[name] = v
+      evtData = value: v, old: old, property: name
+      if old isnt v then @fire "change:#{name}", evtData
+      @fire "set:#{name}", evtData
 
     # Finally, create the property on the caller prototype.
     Object.defineProperty @prototype, name, opts

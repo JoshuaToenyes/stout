@@ -6,6 +6,7 @@
 #
 # @author Joshua Toenyes <joshua.toenyes@me.com>
 
+_          = require 'lodash'
 Foundation = require './../base/Foundation'
 
 
@@ -53,8 +54,8 @@ module.exports = class View extends Foundation
   #
   # @constructor
 
-  constructor: (template, model) ->
-    super template: template, model: model
+  constructor: (template, model, init) ->
+    super _.merge(init, {template: template, model: model})
     @registerEvent 'render'
 
 
