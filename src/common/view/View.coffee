@@ -69,7 +69,7 @@ module.exports = class View extends Foundation
   # @public
 
   render: ->
-    r = @template(@objectify())
+    r = @template(@_preRender @objectify())
     @fire 'render'
     @rendered = true
     return r
@@ -86,3 +86,18 @@ module.exports = class View extends Foundation
   bind: (callback, event = 'change') ->
     @model.on event, =>
       callback.call this, @render()
+
+
+  ##
+  # This method allows for modifying the object passed to the renderer just
+  # prior to rendering. This lets extending classes format or mask values
+  # before they are passed renderer.
+  #
+  # @param {object} obj - The value of `this` objectified.
+  #
+  # @returns {object} The object to be passed to the renderer.
+  #
+  # @method _preRender
+  # @protected
+
+  _preRender: _.identity

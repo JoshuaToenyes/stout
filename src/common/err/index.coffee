@@ -150,3 +150,11 @@ defineErr 'RegisteredTopicErr'
 # @class RouteErr
 
 defineErr 'RouteErr'
+
+
+##
+# Thrown for property-related errors or missing properties.
+#
+# @class PropertyErr
+
+defineErr 'PropertyErr'
