@@ -92,14 +92,45 @@ module.exports = class HTTPResponse extends Response
     @send(data)
 
 
+  ##
+  # Responds with a "Client Error 405 - Method Not Allowed".
+  #
+  # @param {string} data - The response body.
+  #
+  # @param {string} mime - The reponse MIME type.
+  #
+  # @method methodNotAllowed
+  # @public
 
   methodNotAllowed: (data, mime) ->
     @_send4xx 405, data, mime
 
 
+  ##
+  # Responds with a "Internal Server Error 500" response.
+  #
+  # @param {string} data - The response body.
+  #
+  # @param {string} mime - The response MIME type.
+  #
+  # @method internalServerError
+  # @public
+
   internalServerError: (data, mime) ->
     @_send5xx 500, data, mime
 
+
+  ##
+  # Sends a 4xx response.
+  #
+  # @param {number} code - The response status code.
+  #
+  # @param {string} data - The response body.
+  #
+  # @param {string} mime - The response MIME type.
+  #
+  # @method _send4xx
+  # @private
 
   _send4xx: (code, data, mime) ->
     @headers.connection = 'close'
@@ -107,6 +138,11 @@ module.exports = class HTTPResponse extends Response
     @headers.mime = mime or @_opts.errorMIMEs[code] or @_opts.defaultErrorMIME
     @send(data or @_opts.errorContent[code] or http.STATUS_CODES[code])
 
+
+  ##
+  # Sends a 5xx response.
+  #
+  # @see _send4xxx
 
   _send5xx: @.prototype._send4xx
 

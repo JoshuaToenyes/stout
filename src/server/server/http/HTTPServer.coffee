@@ -32,16 +32,41 @@ module.exports = class HTTPServer extends Server
       return @_frontend.port
 
 
+  ##
+  # Error page content, indexed by status code. The error page content is
+  # passed to the HTTPResponse class, which serves it in-case of the
+  # corresponding error code.
+  #
+  # @property errorContent
+  # @type string
+  # @public
+
   @property 'errorContent',
     default: {}
     set: (c) -> @_frontend.responseOptions.errorContent = c
 
+
+  ##
+  # The default MIME type of error messages. If set, it will override the
+  # default `text/plain` MIME type.
+  #
+  # @property defaultErrorMIME
+  # @type string
+  # @public
 
   @property 'defaultErrorMIME',
     default: {}
     set: (c) -> @_frontend.responseOptions.defaultErrorMIME = c
 
 
+  ##
+  # Status-code keyed error MIME types. If set, the MIME type of the keyed
+  # status code will override the `defaultErrorMIME` type.
+  #
+  # @property errorMIMEs
+  # @type Object<string, string>
+  # @public
+  
   @property 'errorMIMEs',
     default: {}
     set: (c) -> @_frontend.responseOptions.errorMIMEs = c
