@@ -93,6 +93,28 @@ module.exports = class HTTPResponse extends Response
 
 
   ##
+  # Sends a '307 Temporary Redirect' response.
+  #
+  # @method temporaryRedirect
+  # @public
+
+  temporaryRedirect: (url, data, mime) ->
+    @headers.location = url
+    @_send3xx 307, data, mime
+
+
+  ##
+  # Sends a '301 Moved Permanently' response.
+  #
+  # @method permanentRedirect
+  # @public
+
+  permanentRedirect: (url, data, mime) ->
+    @headers.location = url
+    @_send3xx 301, data, mime
+
+
+  ##
   # Responds with a "Client Error 405 - Method Not Allowed".
   #
   # @param {string} data - The response body.
@@ -120,6 +142,13 @@ module.exports = class HTTPResponse extends Response
     @_send5xx 500, data, mime
 
 
+
+  _sendNon200: (code, data, mime) ->
+    @headers.code = code
+    @headers.mime = mime or @_opts.errorMIMEs[code] or @_opts.defaultErrorMIME
+    @send(data or '\r\n')
+
+
   ##
   # Sends a 4xx response.
   #
@@ -133,18 +162,27 @@ module.exports = class HTTPResponse extends Response
   # @private
 
   _send4xx: (code, data, mime) ->
-    @headers.connection = 'close'
-    @headers.code = code
-    @headers.mime = mime or @_opts.errorMIMEs[code] or @_opts.defaultErrorMIME
-    @send(data or @_opts.errorContent[code] or http.STATUS_CODES[code])
+    data = data or @_opts.errorContent[code] or http.STATUS_CODES[code]
+    @_sendNon200 code, data, mime
+
+
+  ##
+  # Sends a 3xx response.
+  #
+  # @see _send4xx
+
+  _send3xx: (code, data, mime) ->
+    @_sendNon200 code, data, mime
 
 
   ##
   # Sends a 5xx response.
   #
-  # @see _send4xxx
+  # @see _send4xx
 
-  _send5xx: @.prototype._send4xx
+  _send5xx: (code, data, mime) ->
+    data = data or @_opts.errorContent[code] or http.STATUS_CODES[code]
+    @_sendNon200 code, data, mime
 
 
   ##

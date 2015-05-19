@@ -5,7 +5,22 @@ Request = require './../Request'
 module.exports = class HTTPRequest extends Request
 
   @property 'url',
-    get: -> url.parse(@_req.url)
+    get: ->
+      u = @_req.url
+      u = @headers['host'] + u
+      if @secure
+        u = 'https://' + u
+      else
+        u = 'http://' + u
+      url.parse(u, true)
+
+  @property 'query',
+    get: -> @url.query
+
+
+  @property 'secure',
+    readonly: true
+
 
   @property 'method',
     get: -> @_req.method.toLowerCase()
@@ -16,5 +31,6 @@ module.exports = class HTTPRequest extends Request
   @property 'rawHeaders',
     get: -> @_req.rawHeaders
 
-  constructor: (@_req) ->
-    super()
+  constructor: (@_req, @_opts = {}, secure = false) ->
+    super secure: secure
+    @_opts.stripTrailingSlash ?= true

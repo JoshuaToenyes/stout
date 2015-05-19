@@ -1,6 +1,7 @@
 App               = require './../../common/app/App'
 HTTPServer        = require './../server/http/HTTPServer'
 Compress          = require './../server/http/Compress'
+SlashRedirector   = require './../server/http/SlashRedirector'
 StaticController  = require './../server/http/StaticController'
 
 
@@ -27,6 +28,7 @@ module.exports = class HTTPServerApp extends App
     super 'log'
 
     opts.compress ?= true
+    opts.stripTrailingSlash ?= true
 
     ##
     # Internal HTTPServer.
@@ -35,6 +37,9 @@ module.exports = class HTTPServerApp extends App
     # @public
 
     @server = new HTTPServer
+
+    if opts.stripTrailingSlash
+      @server._pre new SlashRedirector
 
     if opts.compress
       @server._post new Compress
@@ -52,6 +57,6 @@ module.exports = class HTTPServerApp extends App
   #
   # @method static
   # @public
-  
+
   static: (serveDir) ->
     new StaticController @, serveDir
