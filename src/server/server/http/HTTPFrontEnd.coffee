@@ -49,7 +49,7 @@ module.exports = class HTTPFrontEnd extends Foundation
 
   @property 'responseOptions',
     default: {}
-    
+
 
   @property 'requestOptions',
     default: {}

@@ -12,7 +12,7 @@ module.exports = class MiddlewareSet
   # MiddlewareSet constructor.
   #
   # @constructor
-  
+
   constructor: ->
     @_set = new OrderedList
 
