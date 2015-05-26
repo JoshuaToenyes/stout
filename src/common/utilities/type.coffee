@@ -26,6 +26,25 @@ class Type
     else
       return typeof @_subject
 
+  isDOMNode: ->
+    if typeof Node is 'object'
+      @_subject instanceof Node
+    else
+      t = @_subject
+      t and= typeof @_subject is 'object'
+      t and= typeof @_subject.nodeType is 'number'
+      t and= @_subject.nodeName is 'string'
+      t
+
+  isHTMLElement: ->
+    if typeof HTMLElement is 'object'
+      @_subject instanceof HTMLElement
+    else
+      t = @_subject and @_subject isnt null
+      t and= typeof @_subject is 'object'
+      t and= typeof @_subject.nodeType is 1
+      t and= @_subject.nodeName is 'string'
+      t
 
 module.exports = (subject) ->
   return new Type subject
