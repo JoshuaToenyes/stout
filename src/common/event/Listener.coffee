@@ -2,11 +2,12 @@
 module.exports = class Listener
 
   constructor: (@fn, spec, @scope) ->
-    @spec = new RegExp spec
+    if spec
+      @spec = new RegExp "#{spec}($|\:)"
 
   exec: (event, spec) ->
     if @matches spec
       @fn.call @scope, event
 
   matches: (spec) ->
-    @spec.test spec
+    if @spec then @spec.test(spec) else true
