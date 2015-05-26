@@ -21,4 +21,4 @@ module.exports = class Request extends Foundation
   # @constructor
 
   constructor: ->
-    super()
+    super arguments...

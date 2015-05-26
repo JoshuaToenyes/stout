@@ -51,6 +51,10 @@ module.exports = class HTTPFrontEnd extends Foundation
     default: {}
 
 
+  @property 'requestOptions',
+    default: {}
+
+
   ##
   # Creates and returns a new HTTPFrontEnd server front-end.
   #

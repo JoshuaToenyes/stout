@@ -110,6 +110,16 @@ module.exports = class Headers extends Foundation
 
 
   ##
+  # Location field for redirect responses.
+  #
+  # @property location
+  # @public
+
+  @property 'location',
+    set: (l) -> @set 'Location', l
+
+
+  ##
   # Headers constructor. Takes a reference to the corresponding response object.
   #
   # @param {http.ServerResponse} _res - NodeJS response object.

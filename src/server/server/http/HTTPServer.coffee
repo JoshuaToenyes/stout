@@ -55,7 +55,7 @@ module.exports = class HTTPServer extends Server
   # @public
 
   @property 'defaultErrorMIME',
-    default: {}
+    default: 'text/plain; charset=utf-8'
     set: (c) -> @_frontend.responseOptions.defaultErrorMIME = c
 
 
@@ -66,7 +66,7 @@ module.exports = class HTTPServer extends Server
   # @property errorMIMEs
   # @type Object<string, string>
   # @public
-  
+
   @property 'errorMIMEs',
     default: {}
     set: (c) -> @_frontend.responseOptions.errorMIMEs = c
@@ -91,9 +91,8 @@ module.exports = class HTTPServer extends Server
     @on 'change:routes', @_updateRoutes, @
 
     @on 'error', (e) ->
+      console.error e
       e.data.response.internalServerError()
-
-    # @on 'route:matched', (e) ->
 
     @on 'route:nomatch', (e) ->
       e.data.response.notFound()
