@@ -28,7 +28,8 @@ module.exports = class ClientView extends View
   # @property className
   # @public
 
-  @property 'className'
+  @property 'classes',
+    default: []
 
 
   ##
@@ -52,7 +53,8 @@ module.exports = class ClientView extends View
     get: (el) ->
       if el is null
         el = document.createElement @tagName
-        dom.addClass(el, @className) unless @className is null
+        _.uniq(@classes).forEach (c) ->
+          dom.addClass(el, c) unless c.length is 0
         el.id = @id unless @id is null
         @el = el
       return el
