@@ -61,6 +61,17 @@ module.exports = class ClientView extends View
 
 
   ##
+  # An optional parent HTMLElement which this view should be rendered to.
+  # If set, `#render()` will automatically append this view to the set parent.
+  #
+  # @property parentEl
+  # @public
+
+  @property 'parentEl',
+    serializable: false
+
+
+  ##
   # Using the `events` property, developers can trigger arbitrary view events
   # based on user interaction with the rendered view.
   #
@@ -169,12 +180,15 @@ module.exports = class ClientView extends View
     @el.innerHTML = super()
     @_bindDefaultEvents()
     @_bindCustomEvents()
+    if @parentEl then @parentEl.appendChild @el
     return @el
 
 
   ##
   # Empties the client view and sets the `rendered` property to false. This
   # essentially "unrenders" the view.
+  #
+  # @todo Throw an error if called when not rendered.
   #
   # @method empty
   # @public
@@ -183,6 +197,18 @@ module.exports = class ClientView extends View
     while @el.firstChild
       @el.removeChild @el.firstChild
     @rendered = false
+
+
+  ##
+  # Completely removes and un-renders this ClientView.
+  #
+  # @todo Throw an error if called when not rendered.
+  #
+  # @method destroy
+  # @public
+  destroy: ->
+    @empty()
+    @el.parentNode.removeChild @el
 
 
   ##
