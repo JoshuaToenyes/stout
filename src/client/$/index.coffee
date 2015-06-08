@@ -5,7 +5,6 @@ _ = require 'lodash'
 $ = (target) ->
   if _.isString(target)
     target = document.querySelectorAll target
-  console.log target
   new DomElementList target
 
 
