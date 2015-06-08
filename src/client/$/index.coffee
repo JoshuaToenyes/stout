@@ -1,10 +1,14 @@
 _ = require 'lodash'
 
+
+
 $ = (target) ->
   if _.isString(target)
     target = document.querySelectorAll target
   console.log target
   new DomElementList target
+
+
 
 class DomElementList
 
@@ -41,7 +45,7 @@ class DomElementList
     return @
 
 
-  addClass: (el, className) ->
+  addClass: (className) ->
     if @hasClass(className) then return @
     for el in @_elementList
       if el.classList
@@ -71,6 +75,19 @@ class DomElementList
         el.className = el.className.replace /\s+/, ' '
     return @
 
+
+  transitionDuration: (property) ->
+    el = @_elementList[0]
+    s = window.getComputedStyle(el)
+    props = s.getPropertyValue('transition-property')
+      .replace(/[s\s]+/g, '')
+      .split ','
+    oi = props.indexOf property
+    if oi is -1 then return 0
+    ts = s.getPropertyValue('transition-duration')
+      .replace(/[s\s]+/g, '')
+      .split ','
+    +ts[oi] * 1000
 
 
 module.exports = $
