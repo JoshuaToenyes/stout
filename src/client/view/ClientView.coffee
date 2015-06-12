@@ -208,7 +208,7 @@ module.exports = class ClientView extends View
   # @public
   destroy: ->
     @empty()
-    @el.parentNode.removeChild @el
+    @el.parentNode?.removeChild @el
 
 
   ##
